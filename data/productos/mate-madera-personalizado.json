@@ -1,0 +1,15 @@
+{
+  "nombre": "Mate de madera personalizado",
+  "precio": 20000,
+  "foto": "/img/productos/mate-madera-personalizado.jpg",
+  "descripcion": "Mate de madera con virola de acero, grabado a tu gusto: nombres, iniciales, fechas, logos o frases.",
+  "incluye": [
+    "Grabado personalizado",
+    "Sin tope de grabados",
+    "Virola de acero"
+  ],
+  "etiqueta": "Personalizable",
+  "agotado": false,
+  "visible": true,
+  "orden": 90
+}

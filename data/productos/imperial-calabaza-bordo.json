@@ -1,0 +1,15 @@
+{
+  "nombre": "Imperial interior calabaza · Bordó",
+  "precio": 35000,
+  "foto": "/img/productos/imperial-calabaza-bordo.jpg",
+  "descripcion": "Cuero bordó con costura en contraste y virola plateada de guarda pampa.",
+  "incluye": [
+    "Interior de calabaza",
+    "Forrado en cuero",
+    "Virola con guarda pampa"
+  ],
+  "etiqueta": "",
+  "agotado": false,
+  "visible": true,
+  "orden": 60
+}

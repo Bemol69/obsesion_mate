@@ -1,0 +1,15 @@
+{
+  "nombre": "Camionero interior calabaza",
+  "precio": 25000,
+  "foto": "/img/productos/camionero-interior-calabaza.jpg",
+  "descripcion": "Mate camionero forrado en cuero negro, con virola lisa de acero e interior de calabaza.",
+  "incluye": [
+    "Interior de calabaza",
+    "Forrado en cuero",
+    "Virola de acero"
+  ],
+  "etiqueta": "",
+  "agotado": false,
+  "visible": true,
+  "orden": 20
+}

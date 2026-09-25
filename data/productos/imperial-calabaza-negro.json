@@ -1,0 +1,15 @@
+{
+  "nombre": "Imperial interior calabaza · Negro",
+  "precio": 35000,
+  "foto": "/img/productos/imperial-calabaza-negro.jpg",
+  "descripcion": "Cuero negro graneado con virola dorada de guarda pampa.",
+  "incluye": [
+    "Interior de calabaza",
+    "Forrado en cuero",
+    "Virola con guarda pampa"
+  ],
+  "etiqueta": "",
+  "agotado": false,
+  "visible": true,
+  "orden": 40
+}

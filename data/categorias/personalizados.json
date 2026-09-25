@@ -1,0 +1,10 @@
+{
+  "nombre": "Personalizados con grabado",
+  "orden": 20,
+  "visible": true,
+  "productos": [
+    "mate-madera-personalizado",
+    "matero-de-cuero",
+    "termo-acero"
+  ]
+}

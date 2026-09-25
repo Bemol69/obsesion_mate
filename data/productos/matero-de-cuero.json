@@ -1,0 +1,14 @@
+{
+  "nombre": "Matero de cuero",
+  "precio": 15000,
+  "foto": "/img/productos/matero-de-cuero.jpg",
+  "descripcion": "Matero negro con asa, remaches y costura a la vista. Personalízalo con grabado.",
+  "incluye": [
+    "Asa de cuero",
+    "Hasta 2 grabados"
+  ],
+  "etiqueta": "Personalizable",
+  "agotado": false,
+  "visible": true,
+  "orden": 100
+}

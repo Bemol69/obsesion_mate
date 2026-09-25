@@ -1,0 +1,13 @@
+{
+  "nombre": "Bombilla acero y bronce",
+  "precio": 9000,
+  "foto": "/img/productos/bombilla-acero-bronce.jpg",
+  "descripcion": "Bombilla de acero con boquilla de bronce.",
+  "incluye": [
+    "Acero y bronce"
+  ],
+  "etiqueta": "",
+  "agotado": false,
+  "visible": true,
+  "orden": 120
+}

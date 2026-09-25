@@ -1,0 +1,16 @@
+{
+  "nombre": "Imperial calabaza premium",
+  "precio": 40000,
+  "foto": "/img/productos/imperial-calabaza-premium.jpg",
+  "descripcion": "Cuero negro labrado a mano, virola con guarda pampa y base metálica con patitas.",
+  "incluye": [
+    "Interior de calabaza",
+    "Cuero labrado",
+    "Virola con guarda pampa",
+    "Base metálica con patitas"
+  ],
+  "etiqueta": "Premium",
+  "agotado": false,
+  "visible": true,
+  "orden": 30
+}

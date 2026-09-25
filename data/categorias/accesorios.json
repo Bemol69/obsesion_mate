@@ -1,0 +1,10 @@
+{
+  "nombre": "Materos, termos y bombillas",
+  "orden": 30,
+  "visible": true,
+  "productos": [
+    "matero-de-cuero",
+    "termo-acero",
+    "bombilla-acero-bronce"
+  ]
+}

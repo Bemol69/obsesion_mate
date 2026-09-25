@@ -1,0 +1,45 @@
+{
+  "_ayuda": "Datos fijos de la tienda (los define el desarrollador). Los datos de contacto y portada van en data/ajustes.json, que el cliente edita desde /admin.",
+  "nombre": "Obsesión Mate",
+  "marca_a": "Obsesión",
+  "marca_b": "Mate",
+  "rubro": "Mates artesanales y personalizados",
+  "schema_tipo": "Store",
+  "seo_titulo": "Mates imperiales y personalizados en Rancagua | Obsesión Mate",
+  "seo_descripcion": "Mates imperiales, camioneros y torpedo forrados en cuero, mates de madera, termos y materos con grabado personalizado. Pide por WhatsApp con envíos a todo Chile.",
+  "github_repo": "Bemol69/obsesion_mate",
+  "site_url": "https://obsesion-mate.vercel.app",
+  "google_verificacion": "",
+  "hero": [
+    {
+      "foto": "img/productos/set-matero-termo.jpg",
+      "alt": "Set de mate imperial, termo de acero y matero de cuero"
+    },
+    {
+      "foto": "img/productos/imperial-calabaza-negro.jpg",
+      "alt": "Mate imperial de cuero negro con virola dorada"
+    },
+    {
+      "foto": "img/productos/grabado-frase.jpg",
+      "alt": "Virola de mate con grabado personalizado"
+    }
+  ],
+  "fuentes": {
+    "titulos": "Cormorant Garamond",
+    "texto": "Lato"
+  },
+  "colores": {
+    "fondo": "#FBF7F2",
+    "primario": "#7A4A2A",
+    "primario_oscuro": "#5A3520",
+    "primario_claro": "#F3E7DC",
+    "secundario": "#A8843A",
+    "secundario_claro": "#F5EEDF",
+    "acento": "#2E5E4E",
+    "acento_claro": "#E2EEE8",
+    "tinta": "#241B15",
+    "tinta_suave": "#6B5B4F",
+    "extra": "#1F2B3D",
+    "dorado": "#C9A24B"
+  }
+}

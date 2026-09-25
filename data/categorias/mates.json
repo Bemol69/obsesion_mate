@@ -1,0 +1,16 @@
+{
+  "nombre": "Mates",
+  "orden": 10,
+  "visible": true,
+  "productos": [
+    "mate-torpedo",
+    "camionero-interior-calabaza",
+    "imperial-calabaza-premium",
+    "imperial-calabaza-negro",
+    "imperial-calabaza-azul",
+    "imperial-calabaza-bordo",
+    "imperial-interior-acero",
+    "animal-print-interior-calabaza",
+    "mate-madera-personalizado"
+  ]
+}

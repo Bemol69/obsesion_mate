@@ -1,0 +1,194 @@
+# Configuración del panel /admin (Sveltia CMS)
+# Cada cambio que se guarda aquí crea un commit en GitHub.
+# Vercel arma la web (scripts/build.mjs) y la publica en ~30 segundos.
+
+backend:
+  name: github
+  repo: %%GITHUB_REPO%%
+  branch: main
+  commit_messages:
+    create: "Catálogo: crea {{collection}} «{{slug}}»"
+    update: "Catálogo: actualiza {{collection}} «{{slug}}»"
+    delete: "Catálogo: elimina {{collection}} «{{slug}}»"
+    uploadMedia: "Catálogo: sube foto {{path}}"
+    deleteMedia: "Catálogo: elimina foto {{path}}"
+
+site_url: %%SITE_URL%%
+display_url: %%SITE_URL%%
+logo_url: ../img/logo.jpg
+
+media_folder: img/productos
+public_folder: /img/productos
+
+# Nombres de archivo sin tildes ni ñ (ej: "Día del Niño" -> dia-del-nino.json)
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: "-"
+
+# Las fotos del celular se achican y convierten a WebP al subirlas, para que la web cargue rápido
+media_libraries:
+  default:
+    config:
+      transformations:
+        raster_image:
+          format: webp
+          quality: 85
+          width: 1200
+          height: 1200
+
+collections:
+  # ---------- CATEGORÍAS (filtros del catálogo) ----------
+  - name: categorias
+    label: Categorías
+    label_singular: categoría
+    description: "Los filtros del catálogo (Mates, Personalizados, Premium…). Abre uno para elegir qué productos aparecen en él."
+    icon: filter_list
+    folder: data/categorias
+    format: json
+    create: true
+    delete: true
+    identifier_field: nombre
+    slug: "{{nombre}}"
+    summary: "{{nombre}}"
+    sortable_fields:
+      fields: [orden, nombre]
+      default:
+        field: orden
+        direction: ascending
+    fields:
+      - name: nombre
+        label: Nombre del filtro
+        widget: string
+        hint: "Así aparece en la web. Ej: Día del Niño"
+
+      - name: productos
+        label: Productos en este filtro
+        widget: relation
+        collection: productos
+        value_field: "{{slug}}"
+        search_fields: [nombre]
+        display_fields: ["{{nombre}} · ${{precio}}"]
+        multiple: true
+        required: false
+        hint: "Busca y marca los productos. Un mismo producto puede estar en varios filtros. Para moverlo, quítalo de aquí y agrégalo en el otro."
+
+      - name: orden
+        label: Posición
+        widget: number
+        value_type: int
+        default: 100
+        hint: "Los números más bajos aparecen primero en la barra de filtros."
+
+      - name: visible
+        label: Mostrar en la web
+        widget: boolean
+        default: true
+        hint: "Desactívalo para esconder el filtro sin borrarlo (ej: fuera de temporada)."
+
+  # ---------- PRODUCTOS ----------
+  - name: productos
+    label: Productos
+    label_singular: producto
+    description: "Todos los productos. Para que un producto aparezca en un filtro, agrégalo desde Categorías."
+    icon: storefront
+    folder: data/productos
+    format: json
+    create: true
+    delete: true
+    identifier_field: nombre
+    slug: "{{nombre}}"
+    summary: "{{nombre}} · ${{precio}}"
+    thumbnail: foto
+    sortable_fields:
+      fields: [orden, nombre, precio]
+      default:
+        field: orden
+        direction: ascending
+    fields:
+      - name: nombre
+        label: Nombre del producto
+        widget: string
+
+      - name: precio
+        label: Precio
+        widget: number
+        value_type: int
+        min: 0
+        hint: "Solo números, sin puntos ni signo $. Ej: 25990"
+
+      - name: foto
+        label: Foto
+        widget: image
+        hint: "Ideal una foto vertical (4:5) del producto."
+
+      - name: descripcion
+        label: Descripción
+        widget: text
+        required: false
+        hint: "Opcional. Aparece bajo el nombre."
+
+      - name: incluye
+        label: Qué incluye
+        label_singular: ítem
+        widget: list
+        required: false
+        field:
+          name: item
+          label: Ítem
+          widget: string
+        hint: "Un ítem por línea. Ej: Interior de calabaza, Forrado en cuero, Virola cincelada."
+
+      - name: etiqueta
+        label: Etiqueta
+        widget: string
+        required: false
+        hint: "Opcional. Aparece sobre la foto. Ej: Nuevo, Más vendido."
+
+      - name: orden
+        label: Posición
+        widget: number
+        value_type: int
+        default: 1000
+        hint: "Los números más bajos aparecen primero en el catálogo."
+
+      - name: agotado
+        label: Agotado
+        widget: boolean
+        default: false
+        hint: "Si está activado, se muestra 'Consultar stock' en vez de 'Hacer pedido'."
+
+      - name: visible
+        label: Mostrar en la web
+        widget: boolean
+        default: true
+        hint: "Desactívalo para ocultar el producto sin borrarlo."
+
+  # ---------- AJUSTES (datos de contacto y portada, editables por el cliente) ----------
+  - name: ajustes
+    label: Ajustes de la tienda
+    icon: settings
+    files:
+      - name: ajustes
+        label: Contacto, horario y portada
+        file: data/ajustes.json
+        format: json
+        fields:
+          - name: whatsapp
+            label: WhatsApp para pedidos
+            widget: string
+            pattern: ['^\+?[0-9 ]{10,17}$', "Formato internacional, ej: 56912345678"]
+            hint: "Con código de país y sin +. Ej: 56912345678"
+          - { name: instagram, label: Usuario de Instagram, widget: string, required: false, hint: "Sin @. Déjalo vacío para ocultarlo." }
+          - { name: tiktok, label: Usuario de TikTok, widget: string, required: false, hint: "Sin @. Déjalo vacío para ocultarlo." }
+          - { name: email, label: Correo, widget: string, required: false }
+          - { name: direccion, label: Dirección, widget: string, required: false, hint: "Calle y número (sin la ciudad)." }
+          - { name: ciudad, label: Ciudad, widget: string }
+          - { name: region, label: Región, widget: string, required: false }
+          - { name: envios, label: Cobertura de envíos, widget: string, required: false, hint: "Ej: Envíos a todo Chile" }
+          - { name: horario_dias, label: Días de atención, widget: string, default: "Lunes a domingo" }
+          - { name: hora_abre, label: Hora de apertura, widget: string, pattern: ['^\d{2}:\d{2}$', "Formato HH:MM, ej 09:00"] }
+          - { name: hora_cierra, label: Hora de cierre, widget: string, pattern: ['^\d{2}:\d{2}$', "Formato HH:MM, ej 20:00"] }
+          - { name: hero_titulo, label: Título de la portada, widget: string }
+          - { name: hero_destacado, label: Parte destacada del título, widget: string, required: false, hint: "Aparece en cursiva y color al final del título." }
+          - { name: hero_bajada, label: Texto bajo el título, widget: text }

@@ -1,0 +1,15 @@
+{
+  "nombre": "Imperial interior acero",
+  "precio": 35000,
+  "foto": "/img/productos/imperial-interior-acero.jpg",
+  "descripcion": "Cuero negro con virola plateada cincelada e interior de acero.",
+  "incluye": [
+    "Interior de acero",
+    "Forrado en cuero",
+    "Virola cincelada"
+  ],
+  "etiqueta": "",
+  "agotado": false,
+  "visible": true,
+  "orden": 70
+}

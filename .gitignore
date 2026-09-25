@@ -1,0 +1,4 @@
+# Generados por scripts/build.mjs
+dist/
+data/catalogo.json
+.vercel

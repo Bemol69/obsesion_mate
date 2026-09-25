@@ -1,0 +1,15 @@
+{
+  "nombre": "Imperial interior calabaza · Azul",
+  "precio": 35000,
+  "foto": "/img/productos/imperial-calabaza-azul.jpg",
+  "descripcion": "Cuero azul con costuras a la vista y virola dorada de guarda pampa.",
+  "incluye": [
+    "Interior de calabaza",
+    "Forrado en cuero",
+    "Virola con guarda pampa"
+  ],
+  "etiqueta": "",
+  "agotado": false,
+  "visible": true,
+  "orden": 50
+}
