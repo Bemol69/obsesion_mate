@@ -1,9 +1,6 @@
 {
   "nombre": "Prueba",
-  "productos": [
-    "dasdassd",
-    "dsadasdsadsa"
-  ],
+  "productos": [],
   "orden": 100,
   "visible": true
 }
