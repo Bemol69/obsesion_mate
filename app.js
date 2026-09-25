@@ -149,7 +149,7 @@ function getOrder() {
   const tipo = entrega();
   return {
     product: findProduct(fRamo.value),
-    cantidad: Math.max(1, parseInt($('#fCantidad').value, 10) || 1),
+    cantidad: Math.min(500, Math.max(1, parseInt($('#fCantidad').value, 10) || 1)),
     colores: $('#fColores').value.trim(),
     extras: [...document.querySelectorAll('#fExtras input:checked')].map((i) => i.value.replace(/^\S+\s/, '')),
     tipo,
@@ -162,13 +162,17 @@ function getOrder() {
   };
 }
 
+// Precio unitario según cantidad (precio por mayor si corresponde)
+const unitPrice = (p, cantidad) => (p.mayor && cantidad >= p.mayor.desde ? p.mayor.precio : p.price);
+
 // *texto* = negrita y _texto_ = cursiva en WhatsApp
 function buildMessage(o) {
   const custom = o.product.id === CUSTOM.id;
-  const total = o.product.price * o.cantidad;
+  const unit = unitPrice(o.product, o.cantidad);
+  const total = unit * o.cantidad;
   const L = [`🧉✨ *PEDIDO #${orderNumber}* ✨🧉`, '━━━━━━━━━━━━━━━'];
   L.push(`🧉 *Producto:* ${o.product.name}${custom ? '' : ` (${clp(o.product.price)})`}`);
-  if (o.cantidad > 1) L.push(`🔢 *Cantidad:* ${o.cantidad}`);
+  if (o.cantidad > 1) L.push(`🔢 *Cantidad:* ${o.cantidad}${!custom && unit !== o.product.price ? ` (precio por mayor ${clp(unit)} c/u)` : ''}`);
   if (o.colores) L.push(`🎨 *Color/modelo:* ${o.colores}`);
   if (o.extras.length) L.push(`➕ *Agregar:* ${o.extras.join(', ')}`);
   if (o.grabado) L.push(`✍️ *Grabado:* _"${o.grabado}"_`);
@@ -199,7 +203,7 @@ function formatPreview(text) {
 function update() {
   const o = getOrder();
   $('#msgPreview').innerHTML = formatPreview(buildMessage(o));
-  $('#fTotal').textContent = o.product.id === CUSTOM.id ? 'A cotizar' : clp(o.product.price * o.cantidad);
+  $('#fTotal').textContent = o.product.id === CUSTOM.id ? 'A cotizar' : clp(unitPrice(o.product, o.cantidad) * o.cantidad);
 }
 
 function openModal(productId) {
@@ -261,8 +265,10 @@ $('#contactWaBtn').href = waUrl();
   const parts = new Intl.DateTimeFormat('es-CL', { hour: 'numeric', minute: 'numeric', hourCycle: 'h23', timeZone: 'America/Santiago' }).formatToParts(new Date());
   const now = Number(parts.find((p) => p.type === 'hour').value) * 60 + Number(parts.find((p) => p.type === 'minute').value);
   const abre = toMin(TIENDA.hora_abre), cierra = toMin(TIENDA.hora_cierra);
+  const dia = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' })).getDay();
+  const dias = Array.isArray(TIENDA.dias) ? TIENDA.dias : [0, 1, 2, 3, 4, 5, 6];
   // soporta horarios que pasan la medianoche (ej: 18:00 – 02:00)
-  const open = abre <= cierra ? now >= abre && now < cierra : now >= abre || now < cierra;
+  const open = dias.includes(dia) && (abre <= cierra ? now >= abre && now < cierra : now >= abre || now < cierra);
   el.textContent = open ? 'Abierto ahora' : 'Cerrado';
   el.className = 'status ' + (open ? 'is-open' : 'is-closed');
 })();
@@ -290,6 +296,7 @@ async function loadProducts() {
       items: Array.isArray(p.incluye) ? p.incluye : [],
       tags: tagsOf[p.id] || [],
       badge: p.etiqueta || '',
+      mayor: p.precio_mayor && p.minimo_mayor ? { precio: Number(p.precio_mayor), desde: Number(p.minimo_mayor) } : null,
       agotado: !!p.agotado,
     }));
   } catch (e) {

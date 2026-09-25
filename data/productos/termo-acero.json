@@ -1,6 +1,8 @@
 {
   "nombre": "Termo de acero",
   "precio": 12000,
+  "precio_mayor": 10000,
+  "minimo_mayor": 5,
   "foto": "/img/productos/termo-acero.jpg",
   "descripcion": "Termo de acero inoxidable con manija, personalizable con nombres, logos o frases.",
   "incluye": [

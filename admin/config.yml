@@ -117,6 +117,22 @@ collections:
         min: 0
         hint: "Solo números, sin puntos ni signo $. Ej: 25990"
 
+      - name: precio_mayor
+        label: Precio por mayor (opcional)
+        widget: number
+        value_type: int
+        min: 0
+        required: false
+        hint: "Precio por unidad al comprar varias. Déjalo vacío si no aplica. Ej: 10000"
+
+      - name: minimo_mayor
+        label: Desde cuántas unidades (por mayor)
+        widget: number
+        value_type: int
+        min: 2
+        required: false
+        hint: "Cantidad mínima para el precio por mayor. Ej: 5"
+
       - name: foto
         label: Foto
         widget: image
@@ -178,7 +194,7 @@ collections:
             label: WhatsApp para pedidos
             widget: string
             pattern: ['^\+?[0-9 ]{10,17}$', "Formato internacional, ej: 56912345678"]
-            hint: "Con código de país y sin +. Ej: 56912345678"
+            hint: "Con código de país, sin + ni espacios. Ej: 56912345678"
           - { name: instagram, label: Usuario de Instagram, widget: string, required: false, hint: "Sin @. Déjalo vacío para ocultarlo." }
           - { name: tiktok, label: Usuario de TikTok, widget: string, required: false, hint: "Sin @. Déjalo vacío para ocultarlo." }
           - { name: email, label: Correo, widget: string, required: false }

@@ -12,15 +12,15 @@
   "google_verificacion": "",
   "hero": [
     {
-      "foto": "img/productos/set-matero-termo.jpg",
+      "foto": "img/portada/set-matero-termo.jpg",
       "alt": "Set de mate imperial, termo de acero y matero de cuero"
     },
     {
-      "foto": "img/productos/imperial-calabaza-negro.jpg",
+      "foto": "img/portada/imperial-calabaza-negro.jpg",
       "alt": "Mate imperial de cuero negro con virola dorada"
     },
     {
-      "foto": "img/productos/grabado-frase.jpg",
+      "foto": "img/portada/grabado-frase.jpg",
       "alt": "Virola de mate con grabado personalizado"
     }
   ],

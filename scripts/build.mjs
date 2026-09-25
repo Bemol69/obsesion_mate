@@ -29,7 +29,8 @@ const T = {
   marca_b: str(config.marca_b),
   rubro: str(config.rubro),
   schema_tipo: str(config.schema_tipo) || 'Store',
-  whatsapp: str(ajustes.whatsapp).replace(/\D/g, ''),
+  // Si escriben el celular sin código de país (9 8529 3655) se agrega el 56 de Chile
+  whatsapp: str(ajustes.whatsapp).replace(/\D/g, '').replace(/^(9\d{8})$/, '56$1'),
   instagram: str(ajustes.instagram).replace(/^@/, ''),
   tiktok: str(ajustes.tiktok).replace(/^@/, ''),
   email: str(ajustes.email),
@@ -47,6 +48,24 @@ const T = {
 
 const faltan = ['nombre', 'whatsapp', 'ciudad'].filter((k) => !T[k]);
 if (faltan.length) throw new Error(`Faltan datos obligatorios: ${faltan.join(', ')} (tienda.config.json / data/ajustes.json)`);
+// Días de atención a partir del texto del panel ("Lunes a sábado", "Lunes a viernes y sábado"...)
+// 0 = domingo … 6 = sábado, como Date.getDay(). Si no se entiende el texto, se asume todos los días.
+const DIAS = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+function parseDias(texto) {
+  const t = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const set = new Set();
+  const rango = /(domingo|lunes|martes|miercoles|jueves|viernes|sabado)\s+(?:a|al|-|–)\s+(domingo|lunes|martes|miercoles|jueves|viernes|sabado)/g;
+  let resto = t, m;
+  while ((m = rango.exec(t))) {
+    for (let d = DIAS.indexOf(m[1]); ; d = (d + 1) % 7) { set.add(d); if (d === DIAS.indexOf(m[2])) break; }
+    resto = resto.replace(m[0], ' ');
+  }
+  DIAS.forEach((d, i) => { if (new RegExp(`\\b${d}\\b`).test(resto)) set.add(i); });
+  if (/todos los dias/.test(t)) DIAS.forEach((_, i) => set.add(i));
+  return set.size ? [...set].sort() : [0, 1, 2, 3, 4, 5, 6];
+}
+T.dias = parseDias(T.horario_dias);
+
 if (!/^\d{10,15}$/.test(T.whatsapp) || (T.whatsapp.startsWith('56') && !/^569\d{8}$/.test(T.whatsapp))) {
   throw new Error(`WhatsApp inválido "${T.whatsapp}": usa formato internacional; en Chile son 11 dígitos, ej 56912345678`);
 }
@@ -82,6 +101,9 @@ const productos = readFolder('productos')
     incluye: Array.isArray(p.incluye) ? p.incluye.map((i) => String(i).trim()).filter(Boolean) : [],
     etiqueta: typeof p.etiqueta === 'string' ? p.etiqueta.trim() : '',
     agotado: p.agotado === true,
+    // Precio por mayor opcional: se aplica desde "minimo_mayor" unidades
+    precio_mayor: num(p.precio_mayor, 0) > 0 && num(p.minimo_mayor, 0) > 1 ? Math.round(num(p.precio_mayor, 0)) : undefined,
+    minimo_mayor: num(p.precio_mayor, 0) > 0 && num(p.minimo_mayor, 0) > 1 ? Math.round(num(p.minimo_mayor, 0)) : undefined,
     orden: num(p.orden, 1000),
   }))
   .sort(byOrder)
@@ -143,7 +165,7 @@ const VARS = {
   COLOR_FONDO: colores.fondo, COLOR_EXTRA: colores.extra, COLOR_DORADO: colores.dorado,
   // Solo lo que necesita el navegador (app.js)
   TIENDA_JSON: JSON.stringify({
-    nombre: T.nombre, whatsapp: T.whatsapp, ciudad: T.ciudad, hora_abre: T.hora_abre, hora_cierra: T.hora_cierra,
+    nombre: T.nombre, whatsapp: T.whatsapp, ciudad: T.ciudad, hora_abre: T.hora_abre, hora_cierra: T.hora_cierra, dias: T.dias,
   }),
 };
 
@@ -210,7 +232,7 @@ const jsonLd = {
       },
       openingHoursSpecification: [{
         '@type': 'OpeningHoursSpecification',
-        dayOfWeek: config.dias_schema || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        dayOfWeek: config.dias_schema || T.dias.map((d) => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][d]),
         opens: T.hora_abre,
         closes: T.hora_cierra,
       }],
