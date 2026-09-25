@@ -6,6 +6,6 @@
   "incluye": [],
   "etiqueta": "New",
   "orden": 2,
-  "agotado": false,
+  "agotado": true,
   "visible": true
 }
