@@ -1,0 +1,11 @@
+{
+  "nombre": "dasdassd",
+  "precio": 13213,
+  "foto": "/img/productos/download.webp",
+  "descripcion": "dasdasdasdasdas",
+  "incluye": [],
+  "etiqueta": "New",
+  "orden": 2,
+  "agotado": false,
+  "visible": true
+}
