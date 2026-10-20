@@ -13,9 +13,7 @@
   "agotado": false,
   "visible": true,
   "orden": 110,
-  "galeria": [
-    "/img/productos/termo-acero.jpg"
-  ],
+  "galeria": [],
   "grabado": "incluido",
   "grabado_detalle": "Hasta 3 imágenes",
   "opciones_titulo": "",

@@ -11,9 +11,7 @@
   "agotado": false,
   "visible": true,
   "orden": 100,
-  "galeria": [
-    "/img/productos/matero-de-cuero.jpg"
-  ],
+  "galeria": [],
   "grabado": "incluido",
   "grabado_detalle": "Hasta 2 grabados",
   "opciones_titulo": "",

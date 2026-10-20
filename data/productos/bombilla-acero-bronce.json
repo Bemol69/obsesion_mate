@@ -10,9 +10,7 @@
   "agotado": false,
   "visible": true,
   "orden": 120,
-  "galeria": [
-    "/img/productos/bombilla-acero-bronce.jpg"
-  ],
+  "galeria": [],
   "grabado": "",
   "grabado_detalle": "",
   "opciones_titulo": "",
