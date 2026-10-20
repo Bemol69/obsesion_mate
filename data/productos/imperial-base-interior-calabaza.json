@@ -1,0 +1,22 @@
+{
+  "nombre": "Imperial con base · Interior calabaza",
+  "precio": 35000,
+  "precio_mayor": 30000,
+  "minimo_mayor": 5,
+  "foto": "/img/productos/imperial-base-interior-calabaza.webp",
+  "galeria": [],
+  "descripcion": "Mate imperial de interior calabaza, forrado en cuero negro, con virola labrada y base de patas.",
+  "incluye": [
+    "Interior de calabaza",
+    "Grabado personalizado (sin tope de imágenes)",
+    "Incluye bombilla"
+  ],
+  "etiqueta": "Precio por mayor",
+  "agotado": false,
+  "visible": true,
+  "orden": 34,
+  "grabado": "incluido",
+  "grabado_detalle": "Sin tope de imágenes",
+  "opciones_titulo": "",
+  "opciones": []
+}

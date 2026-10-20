@@ -1,0 +1,22 @@
+{
+  "nombre": "Mate de calabaza con base de cuero",
+  "precio": 25000,
+  "precio_mayor": null,
+  "minimo_mayor": null,
+  "foto": "/img/productos/mate-calabaza-cuero-personalizado.webp",
+  "galeria": [],
+  "descripcion": "Calabaza natural con base de cuero. Personalízalo como quieras: nombres, iniciales, fechas, logos o frases.",
+  "incluye": [
+    "Calabaza natural",
+    "Base de cuero",
+    "Sin tope de grabados"
+  ],
+  "etiqueta": "Personalizable",
+  "agotado": false,
+  "visible": true,
+  "orden": 95,
+  "grabado": "incluido",
+  "grabado_detalle": "Sin tope de grabados",
+  "opciones_titulo": "",
+  "opciones": []
+}

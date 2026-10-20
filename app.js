@@ -19,22 +19,32 @@ const ENTREGAS = {
 let PRODUCTS = [];
 let FILTERS = [['todos', 'Todos']];
 
-const CUSTOM = { id: 'personalizado', name: 'Pedido personalizado / por mayor', price: 0 };
-
 const SORTS = {
   destacados: null,
   'precio-asc': (a, b) => a.price - b.price,
   'precio-desc': (a, b) => b.price - a.price,
 };
 
-// ADAPTAR: extras que el cliente puede sumar al pedido (o [] si no aplica; entonces oculta el fieldset)
-const EXTRAS = ['🥤 Bombilla acero y bronce', '🌡️ Termo de acero', '👜 Matero de cuero', '✍️ Grabado personalizado'];
+// Qué se puede grabar. Los de "archivo" (logo, imagen) se adjuntan por WhatsApp al enviar el pedido.
+const GRABADOS = [
+  { id: 'nombre', label: 'Nombre', icon: 'i-type' },
+  { id: 'iniciales', label: 'Iniciales', icon: 'i-hash' },
+  { id: 'fecha', label: 'Fecha', icon: 'i-calendar' },
+  { id: 'frase', label: 'Frase', icon: 'i-quote' },
+  { id: 'logo', label: 'Logo o escudo', icon: 'i-shield', archivo: true },
+  { id: 'imagen', label: 'Imagen o dibujo', icon: 'i-image', archivo: true },
+];
+
+const CART_KEY = 'obsesionMateCarrito';
 
 // ===== UTILIDADES =====
 const clp = (n) => '$' + n.toLocaleString('es-CL');
 const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const findProduct = (id) => (id === CUSTOM.id ? CUSTOM : PRODUCTS.find((p) => p.id === id));
+const icon = (id) => `<svg class="ic"><use href="#${id}"/></svg>`;
+const findProduct = (id) => PRODUCTS.find((p) => p.id === id);
+const clampQty = (n) => Math.min(500, Math.max(1, parseInt(n, 10) || 1));
 // Se usa api.whatsapp.com y no wa.me: la redirección de wa.me rompe los emojis (llegan como �)
 const waUrl = (text) =>
   `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}${text ? '&text=' + encodeURIComponent(text) : ''}`;
@@ -56,6 +66,22 @@ function commitOrderNumber(num) {
   try { localStorage.setItem('orderCounter', String(parseInt(num, 10))); } catch (e) {}
 }
 
+// Ventanas (ficha, carrito, visor): bloquea el scroll de la página mientras haya alguna abierta
+function setOpen(el, open) {
+  el.classList.toggle('is-open', open);
+  el.setAttribute('aria-hidden', String(!open));
+  document.body.style.overflow = $$('.sheet.is-open, .drawer.is-open, .viewer.is-open').length ? 'hidden' : '';
+}
+
+let toastTimer;
+function toast(html) {
+  const el = $('#toast');
+  el.innerHTML = html;
+  el.classList.add('is-on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('is-on'), 3200);
+}
+
 // ===== CATÁLOGO =====
 const grid = $('#productGrid');
 const filters = $('#filters');
@@ -70,30 +96,39 @@ function renderFilters(active) {
 
 let currentCat = 'todos';
 
+// misma tarjeta que card() en scripts/build.mjs
+const cardHtml = (p) => `
+    <article class="card${p.agotado ? ' is-soldout' : ''}">
+      <button type="button" class="card__img" data-product="${esc(p.id)}" aria-label="Ver ${esc(p.name)}">
+        ${p.agotado ? '<span class="badge badge--soldout">Agotado</span>' : p.badge ? `<span class="badge">${esc(p.badge)}</span>` : ''}
+        <img class="card__blur" src="${esc(p.img)}" alt="" aria-hidden="true" loading="lazy">
+        <img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy">
+        ${p.gallery.length > 1 ? `<span class="card__photos">${icon('i-image')} ${p.gallery.length}</span>` : ''}
+      </button>
+      <div class="card__body">
+        ${p.category ? `<p class="card__cat">${esc(p.category)}</p>` : ''}
+        <h3><button type="button" data-product="${esc(p.id)}">${esc(p.name)}</button></h3>
+        ${p.desc ? `<p class="card__desc">${esc(p.desc)}</p>` : ''}
+        ${p.items.length ? `<ul class="card__list">${p.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>` : ''}
+        ${p.grabado || p.mayor ? `<p class="card__chips">${p.grabado ? `<span class="chip${p.grabado === 'incluido' ? ' chip--gold' : ''}">${icon('i-sparkles')} Grabado ${p.grabado}</span>` : ''}${p.mayor ? `<span class="chip chip--mayor">${icon('i-users')} Por mayor ${clp(p.mayor.precio)} · desde ${p.mayor.desde}</span>` : ''}</p>` : ''}
+        <div class="card__foot">
+          <div class="card__price">
+            <span class="price">${clp(p.price)}</span>
+          </div>
+          ${p.agotado
+            ? `<a class="btn btn--ghost btn--sm" target="_blank" rel="noopener" href="${esc(waUrl(`Hola! ¿Tienen stock de ${p.name}? 🧉`))}">Consultar stock</a>`
+            : `<button class="btn btn--primary btn--sm btn--add" data-product="${esc(p.id)}">${icon('i-bag')} Agregar</button>`}
+        </div>
+      </div>
+    </article>`;
+
 function renderProducts(cat = currentCat) {
   currentCat = cat;
   let list = cat === 'todos' ? PRODUCTS : PRODUCTS.filter((p) => p.tags.includes(cat));
   const sort = SORTS[$('#sort').value];
   if (sort) list = [...list].sort(sort);
   $('#count').innerHTML = `Mostrando <strong>${list.length}</strong> ${list.length === 1 ? 'producto' : 'productos'}`;
-  grid.innerHTML = list.map((p) => `
-    <article class="card${p.agotado ? ' is-soldout' : ''}">
-      <div class="card__img">
-        ${p.agotado ? '<span class="badge badge--soldout">Agotado</span>' : p.badge ? `<span class="badge">${esc(p.badge)}</span>` : ''}
-        <img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy">
-      </div>
-      <div class="card__body">
-        <h3>${esc(p.name)}</h3>
-        ${p.desc ? `<p class="card__desc">${esc(p.desc)}</p>` : ''}
-        <ul>${p.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
-        <div class="card__foot">
-          <span class="price">${clp(p.price)}</span>
-          ${p.agotado
-            ? `<a class="btn btn--ghost btn--sm" target="_blank" rel="noopener" href="${esc(waUrl(`Hola! ¿Tienen stock de ${p.name}? 🧉`))}">Consultar stock</a>`
-            : `<button class="btn btn--primary btn--sm" data-order="${p.id}">Hacer pedido</button>`}
-        </div>
-      </div>
-    </article>`).join('');
+  grid.innerHTML = list.map(cardHtml).join('');
 }
 
 filters.addEventListener('click', (e) => {
@@ -104,30 +139,257 @@ filters.addEventListener('click', (e) => {
 });
 $('#sort').addEventListener('change', () => renderProducts());
 
-// ===== FORMULARIO / MODAL =====
-const modal = $('#orderModal');
-const form = $('#orderForm');
-const fRamo = $('#fRamo');
+// ===== CARRITO (se guarda en este navegador) =====
+// Cada línea: { key, id, qty, opcion, nota, grabado: { tipos: [], texto } | null }
+let cart = [];
+try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch (e) {}
+if (!Array.isArray(cart)) cart = [];
+
+function saveCart() {
+  try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) {}
+}
+
+// El precio por mayor se calcula con el total de unidades del mismo producto (aunque tengan grabados distintos)
+const qtyOf = (id) => cart.filter((l) => l.id === id).reduce((s, l) => s + l.qty, 0);
+const unitPrice = (p, qty) => (p.mayor && qty >= p.mayor.desde ? p.mayor.precio : p.price);
+
+function totals() {
+  let total = 0, normal = 0, count = 0, cotizar = false;
+  cart.forEach((l) => {
+    const p = findProduct(l.id);
+    total += unitPrice(p, qtyOf(l.id)) * l.qty;
+    normal += p.price * l.qty;
+    count += l.qty;
+    if (l.grabado && p.grabado === 'opcional') cotizar = true;
+  });
+  return { total, ahorro: normal - total, count, cotizar };
+}
+
+const tipoLabel = (id) => (GRABADOS.find((g) => g.id === id) || {}).label || id;
+const grabadoResumen = (g) =>
+  g.tipos.map(tipoLabel).join(', ') + (g.texto ? ` · “${g.texto}”` : '');
+
+function renderCart() {
+  const t = totals();
+  $$('[data-cart-count]').forEach((el) => { el.textContent = t.count; });
+  $('.cart-btn').classList.toggle('has-items', t.count > 0);
+  $('#cartBar').hidden = t.count === 0;
+  $('#cartBarTotal').textContent = clp(t.total);
+
+  $('#cartEmpty').hidden = cart.length > 0;
+  $('#cartLines').innerHTML = cart.map((l) => {
+    const p = findProduct(l.id);
+    const unit = unitPrice(p, qtyOf(l.id));
+    return `
+      <li class="line">
+        <img src="${esc(p.img)}" alt="">
+        <div class="line__info">
+          <strong>${esc(p.name)}</strong>
+          ${l.opcion ? `<small>${esc(p.opcionesTitulo || 'Opción')}: ${esc(l.opcion)}</small>` : ''}
+          ${l.grabado ? `<small class="line__engrave">${icon('i-sparkles')} ${esc(grabadoResumen(l.grabado))}</small>` : ''}
+          ${l.nota ? `<small>Nota: ${esc(l.nota)}</small>` : ''}
+          <div class="line__row">
+            <div class="qty qty--sm">
+              <button type="button" data-line-qty="-1" data-key="${esc(l.key)}" aria-label="Quitar uno">−</button>
+              <span>${l.qty}</span>
+              <button type="button" data-line-qty="1" data-key="${esc(l.key)}" aria-label="Agregar uno">+</button>
+            </div>
+            <span class="line__price">${clp(unit * l.qty)}${unit !== p.price ? `<small>${clp(unit)} c/u por mayor</small>` : ''}</span>
+          </div>
+        </div>
+        <button type="button" class="line__remove" data-remove="${esc(l.key)}" aria-label="Quitar ${esc(p.name)}">${icon('i-trash')}</button>
+      </li>`;
+  }).join('');
+
+  const rows = [];
+  if (t.ahorro > 0) rows.push(`<div class="sum__save"><dt>Ahorro por mayor</dt><dd>−${clp(t.ahorro)}</dd></div>`);
+  rows.push(`<div><dt>Envío</dt><dd>A coordinar</dd></div>`);
+  if (t.cotizar) rows.push(`<div><dt>Grabado opcional</dt><dd>A cotizar</dd></div>`);
+  rows.push(`<div class="sum__total"><dt>Total</dt><dd>${cart.length ? clp(t.total) : 'A cotizar'}</dd></div>`);
+  $('#cartSum').innerHTML = rows.join('');
+  $('#cartNext').disabled = cart.length === 0;
+  if ($('#cart').classList.contains('is-open')) updatePreview();
+}
+
+function addToCart(line) {
+  const same = cart.find((l) => l.key === line.key);
+  if (same) same.qty = clampQty(same.qty + line.qty);
+  else cart.push(line);
+  saveCart();
+  renderCart();
+}
+
+$('#cartLines').addEventListener('click', (e) => {
+  const rm = e.target.closest('[data-remove]');
+  if (rm) {
+    cart = cart.filter((l) => l.key !== rm.dataset.remove);
+  } else {
+    const b = e.target.closest('[data-line-qty]');
+    if (!b) return;
+    const l = cart.find((x) => x.key === b.dataset.key);
+    if (!l) return;
+    l.qty += Number(b.dataset.lineQty);
+    if (l.qty < 1) cart = cart.filter((x) => x !== l);
+    else l.qty = clampQty(l.qty);
+  }
+  saveCart();
+  renderCart();
+});
+
+// ===== FICHA DE PRODUCTO =====
+const sheet = $('#sheet');
+const sheetForm = $('#sheetForm');
+let current = null;
+
+$('#sTipos').innerHTML = GRABADOS
+  .map((g) => `<label><input type="checkbox" value="${g.id}"><span>${icon(g.icon)}${esc(g.label)}</span></label>`)
+  .join('');
+
+function setPhoto(i) {
+  $('#sheetImg').src = current.gallery[i];
+  $('#sheetImg').alt = current.name;
+  $('#sheetZoom').dataset.idx = i;
+  $$('#sheetThumbs button').forEach((b, j) => b.classList.toggle('is-active', i === j));
+}
+
+function openSheet(id) {
+  const p = findProduct(id);
+  if (!p) return;
+  current = p;
+  sheetForm.reset();
+  $('#sheetError').hidden = true;
+  $('#sheetCat').textContent = p.category;
+  $('#sheetTitle').textContent = p.name;
+  $('#sheetPrice').innerHTML = `<span class="price">${clp(p.price)}</span>${p.mayor ? `<span class="chip chip--gold">Por mayor ${clp(p.mayor.precio)} c/u desde ${p.mayor.desde}</span>` : ''}`;
+  $('#sheetDesc').textContent = p.desc;
+  $('#sheetDesc').hidden = !p.desc;
+  $('#sheetList').innerHTML = p.items.map((i) => `<li>${esc(i)}</li>`).join('');
+  $('#sheetThumbs').innerHTML = p.gallery.length > 1
+    ? p.gallery.map((src, i) => `<button type="button" data-thumb="${i}" aria-label="Foto ${i + 1}"><img src="${esc(src)}" alt=""></button>`).join('')
+    : '';
+  setPhoto(0);
+
+  // Opciones (virola, modelo…): la primera queda elegida
+  const opts = $('#sheetOpts');
+  opts.hidden = !p.opciones.length;
+  opts.innerHTML = p.opciones.length
+    ? `<legend>${esc(p.opcionesTitulo || 'Elige una opción')}</legend><div class="radios">${p.opciones
+        .map((o, i) => `<label class="radio"><input type="radio" name="opcion" value="${esc(o)}"${i ? '' : ' checked'}><span>${esc(o)}</span></label>`)
+        .join('')}</div>`
+    : '';
+
+  // Grabado: incluido viene activado; opcional se activa si el cliente lo quiere
+  const box = $('#sheetEngrave');
+  box.hidden = !p.grabado;
+  box.classList.toggle('is-included', p.grabado === 'incluido');
+  $('#sGrabar').checked = p.grabado === 'incluido';
+  $('#sGrabadoInfo').textContent = [p.grabado === 'incluido' ? 'Incluido en el precio' : 'Opcional · se cotiza aparte', p.grabadoDetalle]
+    .filter(Boolean).join(' · ');
+  syncSheet();
+  setOpen(sheet, true);
+}
+
+function sheetTipos() {
+  return $$('#sTipos input:checked').map((i) => i.value);
+}
+
+function syncSheet() {
+  if (!current) return;
+  const grabar = !!current.grabado && $('#sGrabar').checked;
+  $('#sGrabadoBody').classList.toggle('is-open', grabar);
+  $('#sheetEngrave').classList.toggle('is-on', grabar);
+  const tipos = sheetTipos();
+  const conArchivo = tipos.some((t) => (GRABADOS.find((g) => g.id === t) || {}).archivo);
+  const conTexto = tipos.some((t) => !(GRABADOS.find((g) => g.id === t) || {}).archivo);
+  $('#sTextoWrap').hidden = tipos.length > 0 && !conTexto;
+  $('#sArchivo').hidden = !conArchivo;
+
+  const qty = clampQty($('#sQty').value);
+  const total = qty + qtyOf(current.id);
+  const unit = unitPrice(current, total);
+  $('#sAddLabel').textContent = `Agregar · ${clp(unit * qty)}`;
+
+  // Medidor de precio por mayor (cuenta lo que ya está en el carrito)
+  const meter = $('#sMayor');
+  meter.hidden = !current.mayor;
+  if (current.mayor) {
+    const falta = current.mayor.desde - total;
+    const pct = Math.min(100, (total / current.mayor.desde) * 100);
+    meter.classList.toggle('is-done', falta <= 0);
+    meter.innerHTML = `<p>${falta > 0
+      ? `Agrega <strong>${falta} más</strong> y pagas <strong>${clp(current.mayor.precio)}</strong> c/u (precio por mayor)`
+      : `${icon('i-check')} <strong>Precio por mayor aplicado:</strong> ${clp(current.mayor.precio)} c/u`}</p>
+      <span class="mayor-meter__bar"><span style="width:${pct}%"></span></span>`;
+  }
+}
+
+sheetForm.addEventListener('input', syncSheet);
+sheetForm.addEventListener('change', syncSheet);
+$('#sheetThumbs').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-thumb]');
+  if (b) setPhoto(Number(b.dataset.thumb));
+});
+$('#sheetZoom').addEventListener('click', () => openViewer(current, Number($('#sheetZoom').dataset.idx) || 0));
+sheetForm.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-qty]');
+  if (!b) return;
+  $('#sQty').value = clampQty(clampQty($('#sQty').value) + Number(b.dataset.qty));
+  syncSheet();
+});
+
+sheetForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const p = current;
+  const err = $('#sheetError');
+  let grabado = null;
+  if (p.grabado && $('#sGrabar').checked) {
+    const tipos = sheetTipos();
+    const texto = $('#sTexto').value.trim();
+    const conTexto = tipos.some((t) => !(GRABADOS.find((g) => g.id === t) || {}).archivo);
+    if (!tipos.length) { err.textContent = 'Elige qué quieres grabar (o desactiva el grabado).'; err.hidden = false; return; }
+    if (conTexto && !texto) { err.textContent = 'Escribe el texto que quieres grabar.'; err.hidden = false; $('#sTexto').focus(); return; }
+    grabado = { tipos, texto: conTexto ? texto : '' };
+  }
+  const opcion = (sheetForm.querySelector('input[name="opcion"]:checked') || {}).value || '';
+  const nota = $('#sNota').value.trim();
+  const qty = clampQty($('#sQty').value);
+  const key = JSON.stringify([p.id, opcion, nota, grabado]);
+  addToCart({ key, id: p.id, qty, opcion, nota, grabado });
+  setOpen(sheet, false);
+  toast(`${icon('i-check')}<span><strong>${esc(p.name)}</strong> agregado al carrito</span><button type="button" data-open-cart>Ver carrito</button>`);
+});
+
+// ===== CHECKOUT (paso 2 del carrito) =====
+const checkout = $('#checkoutForm');
 const fFecha = $('#fFecha');
 const fPago = $('#fPago');
 let orderNumber = nextOrderNumber();
 
-function renderRamoOptions() {
-  fRamo.innerHTML =
-    `<option value="${CUSTOM.id}">✨ ${CUSTOM.name} (a cotizar)</option>` +
-    PRODUCTS.filter((p) => !p.agotado)
-      .map((p) => `<option value="${p.id}">${esc(p.name)} (${clp(p.price)})</option>`).join('');
+function openCart(step = 1) {
+  renderCart();
+  goStep(step);
+  setOpen($('#cart'), true);
 }
 
-$('#fExtras').innerHTML = EXTRAS
-  .map((x) => `<label><input type="checkbox" value="${x}"><span>${x}</span></label>`)
-  .join('');
+function goStep(step) {
+  const two = step === 2;
+  $('#cartStep1').hidden = two;
+  checkout.hidden = !two;
+  $('#cartBack').hidden = !two;
+  $('#cartNext').hidden = two;
+  $('#cartSend').hidden = !two;
+  $('#cartTitle').textContent = two ? (cart.length ? 'Entrega y datos' : 'Pide una cotización') : 'Tu carrito';
+  $$('[data-step-dot]').forEach((d) => d.classList.toggle('is-active', Number(d.dataset.stepDot) <= step));
+  $('#formError').hidden = true;
+  if (two) { syncDelivery(); updatePreview(); }
+  $('.drawer__body').scrollTop = 0;
+}
 
-const entrega = () => form.querySelector('input[name="entrega"]:checked').value;
+const entrega = () => checkout.querySelector('input[name="entrega"]:checked').value;
 
 function syncDelivery() {
   const tipo = entrega();
-  document.querySelectorAll('[data-delivery]').forEach((el) => { el.hidden = tipo === 'retiro'; });
+  $$('[data-delivery]').forEach((el) => { el.hidden = tipo === 'retiro'; });
 
   const min = isoPlusDays(LEAD_DAYS[tipo]);
   fFecha.min = min;
@@ -148,34 +410,32 @@ function syncDelivery() {
 function getOrder() {
   const tipo = entrega();
   return {
-    product: findProduct(fRamo.value),
-    cantidad: Math.min(500, Math.max(1, parseInt($('#fCantidad').value, 10) || 1)),
-    colores: $('#fColores').value.trim(),
-    extras: [...document.querySelectorAll('#fExtras input:checked')].map((i) => i.value.replace(/^\S+\s/, '')),
     tipo,
     comuna: tipo === 'retiro' ? '' : $('#fComuna').value.trim(),
     direccion: tipo === 'retiro' ? '' : $('#fDireccion').value.trim(),
     fecha: fFecha.value,
-    grabado: $('#fDedicatoria').value.trim(),
     cliente: $('#fCliente').value.trim(),
     pago: fPago.value,
+    comentario: $('#fComentario').value.trim(),
   };
 }
 
-// Precio unitario según cantidad (precio por mayor si corresponde)
-const unitPrice = (p, cantidad) => (p.mayor && cantidad >= p.mayor.desde ? p.mayor.precio : p.price);
-
 // *texto* = negrita y _texto_ = cursiva en WhatsApp
 function buildMessage(o) {
-  const custom = o.product.id === CUSTOM.id;
-  const unit = unitPrice(o.product, o.cantidad);
-  const total = unit * o.cantidad;
-  const L = [`🧉✨ *PEDIDO #${orderNumber}* ✨🧉`, '━━━━━━━━━━━━━━━'];
-  L.push(`🧉 *Producto:* ${o.product.name}${custom ? '' : ` (${clp(o.product.price)})`}`);
-  if (o.cantidad > 1) L.push(`🔢 *Cantidad:* ${o.cantidad}${!custom && unit !== o.product.price ? ` (precio por mayor ${clp(unit)} c/u)` : ''}`);
-  if (o.colores) L.push(`🎨 *Color/modelo:* ${o.colores}`);
-  if (o.extras.length) L.push(`➕ *Agregar:* ${o.extras.join(', ')}`);
-  if (o.grabado) L.push(`✍️ *Grabado:* _"${o.grabado}"_`);
+  const t = totals();
+  const archivos = cart.some((l) => l.grabado && l.grabado.tipos.some((x) => (GRABADOS.find((g) => g.id === x) || {}).archivo));
+  const L = [`🧉✨ *${cart.length ? 'PEDIDO' : 'COTIZACIÓN'} #${orderNumber}* ✨🧉`, '━━━━━━━━━━━━━━━'];
+  cart.forEach((l, i) => {
+    const p = findProduct(l.id);
+    const unit = unitPrice(p, qtyOf(l.id));
+    L.push(`*${i + 1}. ${p.name}* × ${l.qty}`);
+    if (l.opcion) L.push(`   ▫️ ${p.opcionesTitulo || 'Opción'}: ${l.opcion}`);
+    if (l.grabado) L.push(`   ✍️ Grabado: ${l.grabado.tipos.map(tipoLabel).join(', ')}${l.grabado.texto ? ` — _"${l.grabado.texto}"_` : ''}${p.grabado === 'opcional' ? ' (a cotizar)' : ''}`);
+    if (l.nota) L.push(`   📝 ${l.nota}`);
+    L.push(`   💲 ${clp(unit)} c/u${unit !== p.price ? ' (por mayor)' : ''} = ${clp(unit * l.qty)}`);
+  });
+  if (cart.length) L.push('━━━━━━━━━━━━━━━');
+  if (o.comentario) L.push(`💬 *Comentario:* ${o.comentario}`);
   L.push(`🚚 *Entrega:* ${ENTREGAS[o.tipo]}`);
   if (o.comuna) L.push(`📍 *Comuna/Ciudad:* ${o.comuna}`);
   if (o.direccion) L.push(`🏠 *Dirección:* ${o.direccion}`);
@@ -183,13 +443,19 @@ function buildMessage(o) {
   if (o.cliente) L.push(`🙋 *Nombre:* ${o.cliente}`);
   L.push(`💳 *Pago:* ${o.pago}`);
   L.push('━━━━━━━━━━━━━━━');
-  L.push(custom ? '💰 *TOTAL: A cotizar*' : `💰 *TOTAL: ${clp(total)}*`);
-  const pendientes = [];
-  if (o.extras.length) pendientes.push('agregados');
-  if (o.tipo !== 'retiro') pendientes.push(o.tipo === 'region' ? 'envío' : 'despacho');
-  if (pendientes.length && !custom) L.push(`_(+ ${pendientes.join(' y ')} a coordinar)_`);
+  if (cart.length) {
+    if (t.ahorro > 0) L.push(`🎉 Ahorro por mayor: ${clp(t.ahorro)}`);
+    L.push(`💰 *TOTAL: ${clp(t.total)}*`);
+    const pendientes = [];
+    if (t.cotizar) pendientes.push('grabado opcional');
+    if (o.tipo !== 'retiro') pendientes.push(o.tipo === 'region' ? 'envío' : 'despacho');
+    if (pendientes.length) L.push(`_(+ ${pendientes.join(' y ')} a coordinar)_`);
+  } else {
+    L.push('💰 *TOTAL: A cotizar*');
+  }
+  if (archivos) L.push('📎 _Te adjunto el logo/imagen para el grabado._');
   L.push('');
-  L.push('¡Hola! Quiero hacer este pedido 🧉');
+  L.push(cart.length ? '¡Hola! Quiero hacer este pedido 🧉' : '¡Hola! Quiero cotizar un pedido 🧉');
   return L.join('\n');
 }
 
@@ -200,47 +466,27 @@ function formatPreview(text) {
     .replace(/(^|\s)_([^_\n]+)_/g, '$1<em>$2</em>');
 }
 
-function update() {
-  const o = getOrder();
-  $('#msgPreview').innerHTML = formatPreview(buildMessage(o));
-  $('#fTotal').textContent = o.product.id === CUSTOM.id ? 'A cotizar' : clp(unitPrice(o.product, o.cantidad) * o.cantidad);
+function updatePreview() {
+  $('#msgPreview').innerHTML = formatPreview(buildMessage(getOrder()));
 }
 
-function openModal(productId) {
-  if (productId && findProduct(productId)) fRamo.value = productId;
-  $('#formError').hidden = true;
-  syncDelivery();
-  update();
-  modal.classList.add('is-open');
-  modal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-}
-function closeModal() {
-  modal.classList.remove('is-open');
-  modal.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-
-document.addEventListener('click', (e) => {
-  const orderBtn = e.target.closest('[data-order]');
-  if (orderBtn) { openModal(orderBtn.dataset.order); return; }
-  if (e.target.closest('[data-close]')) closeModal();
-});
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-form.addEventListener('input', update);
-form.addEventListener('change', (e) => {
+checkout.addEventListener('input', updatePreview);
+checkout.addEventListener('change', (e) => {
   if (e.target.name === 'entrega') syncDelivery();
-  update();
+  updatePreview();
 });
 
-form.addEventListener('submit', (e) => {
+$('#cartNext').addEventListener('click', () => goStep(2));
+$('#cartBack').addEventListener('click', () => goStep(1));
+
+checkout.addEventListener('submit', (e) => {
   e.preventDefault();
   const o = getOrder();
   const missing = [];
   if (!o.cliente) missing.push('tu nombre');
   if (o.tipo !== 'retiro' && !o.comuna) missing.push('comuna o ciudad');
   if (o.tipo !== 'retiro' && !o.direccion) missing.push('dirección');
-  if (o.product.id === CUSTOM.id && !o.colores && !o.grabado && !o.extras.length) missing.push('qué producto o grabado necesitas');
+  if (!cart.length && !o.comentario) missing.push('qué necesitas cotizar (en comentarios)');
   if (missing.length) {
     const err = $('#formError');
     err.textContent = 'Falta completar: ' + missing.join(', ') + '.';
@@ -250,8 +496,69 @@ form.addEventListener('submit', (e) => {
   window.open(waUrl(buildMessage(o)), '_blank', 'noopener');
   commitOrderNumber(orderNumber);
   orderNumber = nextOrderNumber();
-  form.reset();
-  closeModal();
+  cart = [];
+  saveCart();
+  checkout.reset();
+  renderCart();
+  setOpen($('#cart'), false);
+  toast(`${icon('i-check')}<span><strong>¡Pedido enviado!</strong> Te respondemos por WhatsApp.</span>`);
+});
+
+// ===== VISOR DE FOTOS =====
+const viewer = $('#viewer');
+let viewing = null;
+let viewIdx = 0;
+
+function showPhoto(i) {
+  viewIdx = (i + viewing.gallery.length) % viewing.gallery.length;
+  $('#viewerImg').src = viewing.gallery[viewIdx];
+  $('#viewerImg').alt = viewing.name;
+  $('#viewerCount').textContent = viewing.gallery.length > 1 ? `${viewIdx + 1} / ${viewing.gallery.length}` : '';
+  viewer.querySelectorAll('[data-step]').forEach((b) => { b.hidden = viewing.gallery.length < 2; });
+}
+function openViewer(p, i = 0) {
+  viewing = p;
+  $('#viewerTitle').textContent = p.name;
+  showPhoto(i);
+  setOpen(viewer, true);
+}
+
+// Deslizar con el dedo para pasar de foto
+let touchX = null;
+viewer.addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+viewer.addEventListener('touchend', (e) => {
+  if (touchX === null || !viewing) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 50 && viewing.gallery.length > 1) showPhoto(viewIdx + (dx < 0 ? 1 : -1));
+  touchX = null;
+});
+
+// ===== CLICS Y TECLADO =====
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  if (t.closest('[data-close-viewer]')) { setOpen(viewer, false); return; }
+  const step = t.closest('[data-step]');
+  if (step) { showPhoto(viewIdx + Number(step.dataset.step)); return; }
+  if (t.closest('[data-close-sheet]')) { setOpen(sheet, false); return; }
+  if (t.closest('[data-close-cart]')) { setOpen($('#cart'), false); return; }
+  const prod = t.closest('[data-product]');
+  if (prod) { openSheet(prod.dataset.product); return; }
+  if (t.closest('[data-open-cart]')) { $('#toast').classList.remove('is-on'); openCart(1); return; }
+  if (t.closest('[data-quote]')) {
+    openCart(2);
+    setTimeout(() => $('#fComentario').focus(), 50);
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (viewer.classList.contains('is-open')) {
+    if (e.key === 'Escape') setOpen(viewer, false);
+    else if (e.key === 'ArrowRight') showPhoto(viewIdx + 1);
+    else if (e.key === 'ArrowLeft') showPhoto(viewIdx - 1);
+    return;
+  }
+  if (e.key !== 'Escape') return;
+  if (sheet.classList.contains('is-open')) setOpen(sheet, false);
+  else if ($('#cart').classList.contains('is-open')) setOpen($('#cart'), false);
 });
 
 $('#footerWa').href = waUrl();
@@ -284,28 +591,39 @@ async function loadProducts() {
     // producto -> categorías a las que pertenece (la categoría es la que dice qué productos tiene)
     const tagsOf = {};
     categorias.forEach((c) => (c.productos || []).forEach((id) => (tagsOf[id] = tagsOf[id] || []).push(c.id)));
+    const nombreCat = Object.fromEntries(categorias.map((c) => [c.id, c.nombre]));
+    const sinBarra = (f) => String(f).replace(/^\//, ''); // el CMS guarda "/img/productos/x.jpg"
 
     FILTERS = [['todos', 'Todos'], ...categorias.map((c) => [c.id, c.nombre])];
     PRODUCTS = (data.productos || []).map((p) => ({
       id: p.id,
       name: p.nombre,
       price: Number(p.precio) || 0,
-      // el CMS guarda "/img/productos/x.jpg"; sin la barra inicial funciona también en GitHub Pages
-      img: (p.foto || 'img/logo.jpg').replace(/^\//, ''),
+      img: sinBarra(p.foto || 'img/logo.jpg'),
+      // foto principal + fotos extra / afiches, para la ficha y el visor
+      gallery: [p.foto || 'img/logo.jpg', ...(Array.isArray(p.galeria) ? p.galeria : [])].map(sinBarra),
       desc: p.descripcion || '',
       items: Array.isArray(p.incluye) ? p.incluye : [],
       tags: tagsOf[p.id] || [],
+      category: nombreCat[(tagsOf[p.id] || [])[0]] || '',
       badge: p.etiqueta || '',
       mayor: p.precio_mayor && p.minimo_mayor ? { precio: Number(p.precio_mayor), desde: Number(p.minimo_mayor) } : null,
+      grabado: p.grabado || '',
+      grabadoDetalle: p.grabado_detalle || '',
+      opcionesTitulo: p.opciones_titulo || '',
+      opciones: Array.isArray(p.opciones) ? p.opciones : [],
       agotado: !!p.agotado,
     }));
   } catch (e) {
     console.error(e);
     grid.innerHTML = '<p class="muted">No se pudo cargar el catálogo. Intenta recargar la página.</p>';
   }
+  // descarta del carrito productos que ya no existen o se agotaron
+  cart = cart.filter((l) => l && findProduct(l.id) && !findProduct(l.id).agotado && l.qty > 0);
+  saveCart();
   renderFilters('todos');
   renderProducts('todos');
-  renderRamoOptions();
+  renderCart();
 }
 
 loadProducts();

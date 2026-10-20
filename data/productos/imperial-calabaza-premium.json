@@ -12,5 +12,10 @@
   "etiqueta": "Premium",
   "agotado": false,
   "visible": true,
-  "orden": 30
+  "orden": 30,
+  "grabado": "opcional",
+  "grabado_detalle": "Grabado en la virola, a cotizar",
+  "opciones_titulo": "",
+  "opciones": [],
+  "galeria": []
 }

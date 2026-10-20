@@ -9,5 +9,10 @@
   "etiqueta": "Nuevo",
   "orden": 1,
   "agotado": false,
-  "visible": true
+  "visible": true,
+  "grabado": "",
+  "grabado_detalle": "",
+  "opciones_titulo": "",
+  "opciones": [],
+  "galeria": []
 }

@@ -97,10 +97,17 @@ const productos = readFolder('productos')
     nombre: p.nombre.trim(),
     precio: Math.max(0, Math.round(num(p.precio, 0))),
     foto: typeof p.foto === 'string' && p.foto ? p.foto.replace(/^\//, '') : 'img/logo.jpg',
+    // Fotos extra o afiches: se ven en el visor al tocar la foto del producto
+    galeria: Array.isArray(p.galeria) ? p.galeria.filter((f) => typeof f === 'string' && f).map((f) => f.replace(/^\//, '')) : [],
     descripcion: typeof p.descripcion === 'string' ? p.descripcion.trim() : '',
     incluye: Array.isArray(p.incluye) ? p.incluye.map((i) => String(i).trim()).filter(Boolean) : [],
     etiqueta: typeof p.etiqueta === 'string' ? p.etiqueta.trim() : '',
     agotado: p.agotado === true,
+    // Grabado: "incluido" | "opcional" | "" (no se graba)
+    grabado: ['incluido', 'opcional'].includes(p.grabado) ? p.grabado : '',
+    grabado_detalle: typeof p.grabado_detalle === 'string' ? p.grabado_detalle.trim() : '',
+    opciones_titulo: typeof p.opciones_titulo === 'string' ? p.opciones_titulo.trim() : '',
+    opciones: Array.isArray(p.opciones) ? p.opciones.map((o) => String(o).trim()).filter(Boolean) : [],
     // Precio por mayor opcional: se aplica desde "minimo_mayor" unidades
     precio_mayor: num(p.precio_mayor, 0) > 0 && num(p.minimo_mayor, 0) > 1 ? Math.round(num(p.precio_mayor, 0)) : undefined,
     minimo_mayor: num(p.precio_mayor, 0) > 0 && num(p.minimo_mayor, 0) > 1 ? Math.round(num(p.minimo_mayor, 0)) : undefined,
@@ -183,24 +190,33 @@ function render(text, file, escape) {
 }
 
 // ---------- 4. SEO ----------
+// Categoría que se muestra sobre el nombre: la primera (por orden) en la que aparece el producto
+const categoriaDe = (id) => (categorias.find((c) => c.productos.includes(id)) || {}).nombre || '';
+const ICON = (id) => `<svg class="ic"><use href="#${id}"/></svg>`;
 const card = (p) => `
     <article class="card${p.agotado ? ' is-soldout' : ''}">
-      <div class="card__img">
+      <button type="button" class="card__img" data-product="${esc(p.id)}" aria-label="Ver ${esc(p.nombre)}">
         ${p.agotado ? '<span class="badge badge--soldout">Agotado</span>' : p.etiqueta ? `<span class="badge">${esc(p.etiqueta)}</span>` : ''}
+        <img class="card__blur" src="${esc(p.foto)}" alt="" aria-hidden="true" loading="lazy">
         <img src="${esc(p.foto)}" alt="${esc(p.nombre)}" loading="lazy">
-      </div>
+        ${p.galeria.length ? `<span class="card__photos">${ICON('i-image')} ${p.galeria.length + 1}</span>` : ''}
+      </button>
       <div class="card__body">
-        <h3>${esc(p.nombre)}</h3>
+        ${categoriaDe(p.id) ? `<p class="card__cat">${esc(categoriaDe(p.id))}</p>` : ''}
+        <h3><button type="button" data-product="${esc(p.id)}">${esc(p.nombre)}</button></h3>
         ${p.descripcion ? `<p class="card__desc">${esc(p.descripcion)}</p>` : ''}
-        <ul>${p.incluye.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
+        ${p.incluye.length ? `<ul class="card__list">${p.incluye.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>` : ''}
+        ${p.grabado || p.precio_mayor ? `<p class="card__chips">${p.grabado ? `<span class="chip${p.grabado === 'incluido' ? ' chip--gold' : ''}">${ICON('i-sparkles')} Grabado ${p.grabado}</span>` : ''}${p.precio_mayor ? `<span class="chip chip--mayor">${ICON('i-users')} Por mayor ${clp(p.precio_mayor)} · desde ${p.minimo_mayor}</span>` : ''}</p>` : ''}
         <div class="card__foot">
-          <span class="price">${clp(p.precio)}</span>
+          <div class="card__price">
+            <span class="price">${clp(p.precio)}</span>
+          </div>
           ${p.agotado
             ? `<a class="btn btn--ghost btn--sm" target="_blank" rel="noopener" href="${esc(`https://api.whatsapp.com/send?phone=${T.whatsapp}&text=${encodeURIComponent(`Hola! ¿Tienen stock de ${p.nombre}?`)}`)}">Consultar stock</a>`
-            : `<button class="btn btn--primary btn--sm" data-order="${esc(p.id)}">Hacer pedido</button>`}
+            : `<button class="btn btn--primary btn--sm btn--add" data-product="${esc(p.id)}">${ICON('i-bag')} Agregar</button>`}
         </div>
       </div>
-    </article>`; // misma tarjeta que renderProducts() en app.js
+    </article>`; // misma tarjeta que cardHtml() en app.js
 
 const OG_IMAGE = abs(heroFoto(0));
 const precios = productos.map((p) => p.precio).filter((n) => n > 0);
@@ -279,9 +295,14 @@ let html = readFileSync(join(ROOT, 'index.html'), 'utf8');
 for (const marker of ['<!-- SEO:HEAD', '<!-- SEO:PRODUCTOS -->']) {
   if (!html.includes(marker)) throw new Error(`Falta el marcador ${marker} en index.html`);
 }
+// Sección "Por mayor": se arma sola con los productos que tienen precio por mayor
+const mayorItem = (p) => `
+              <li><button type="button" data-product="${esc(p.id)}"><img src="${esc(p.foto)}" alt="" loading="lazy"><div><strong>${esc(p.nombre)}</strong><small>${clp(p.precio_mayor)} c/u desde ${p.minimo_mayor} unidades <s>${clp(p.precio)}</s></small></div></button></li>`;
+
 html = render(html, 'index.html', true)
   .replace(/<!-- SEO:HEAD[^>]*-->/, head)
-  .replace('<!-- SEO:PRODUCTOS -->', productos.map(card).join(''));
+  .replace('<!-- SEO:PRODUCTOS -->', productos.map(card).join(''))
+  .replace('<!-- SEO:MAYOR -->', productos.filter((p) => p.agotado === false && p.precio_mayor).map(mayorItem).join(''));
 
 rmSync(DIST, { recursive: true, force: true });
 mkdirSync(join(DIST, 'data'), { recursive: true });

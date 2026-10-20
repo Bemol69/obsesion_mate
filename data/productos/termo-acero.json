@@ -3,15 +3,21 @@
   "precio": 12000,
   "precio_mayor": 10000,
   "minimo_mayor": 5,
-  "foto": "/img/productos/termo-acero.jpg",
+  "foto": "/img/productos/termo-acero-afiche.webp",
   "descripcion": "Termo de acero inoxidable con manija, personalizable con nombres, logos o frases.",
   "incluye": [
     "Acero inoxidable",
-    "Hasta 3 imágenes grabadas",
-    "$10.000 c/u desde 5 unidades"
+    "Hasta 3 imágenes grabadas"
   ],
   "etiqueta": "Precio por mayor",
   "agotado": false,
   "visible": true,
-  "orden": 110
+  "orden": 110,
+  "galeria": [
+    "/img/productos/termo-acero.jpg"
+  ],
+  "grabado": "incluido",
+  "grabado_detalle": "Hasta 3 imágenes",
+  "opciones_titulo": "",
+  "opciones": []
 }

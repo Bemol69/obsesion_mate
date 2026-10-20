@@ -138,6 +138,17 @@ collections:
         widget: image
         hint: "Ideal una foto vertical (4:5) del producto."
 
+      - name: galeria
+        label: Más fotos (opcional)
+        label_singular: foto
+        widget: list
+        required: false
+        field:
+          name: foto
+          label: Foto
+          widget: image
+        hint: "Fotos extra o afiches. Se ven al tocar la foto del producto en la web."
+
       - name: descripcion
         label: Descripción
         widget: text
@@ -154,6 +165,40 @@ collections:
           label: Ítem
           widget: string
         hint: "Un ítem por línea. Ej: Interior de calabaza, Forrado en cuero, Virola cincelada."
+
+      - name: grabado
+        label: Grabado personalizado
+        widget: select
+        required: false
+        default: ""
+        options:
+          - { label: "No se graba", value: "" }
+          - { label: "Incluido en el precio", value: "incluido" }
+          - { label: "Opcional (se cotiza aparte)", value: "opcional" }
+        hint: "Si se puede grabar, el cliente elige qué grabar (nombre, fecha, logo…) al agregarlo al carrito."
+
+      - name: grabado_detalle
+        label: Detalle del grabado
+        widget: string
+        required: false
+        hint: "Opcional. Ej: Sin tope de imágenes · Hasta 2 grabados · Hasta 3 imágenes"
+
+      - name: opciones_titulo
+        label: Título de las opciones
+        widget: string
+        required: false
+        hint: "Opcional. Ej: Virola, Color, Modelo. Déjalo vacío si el producto no tiene opciones."
+
+      - name: opciones
+        label: Opciones para elegir
+        label_singular: opción
+        widget: list
+        required: false
+        field:
+          name: opcion
+          label: Opción
+          widget: string
+        hint: "El cliente elige una al agregarlo al carrito. Ej: Guarda griega, Cincelada, Labrada."
 
       - name: etiqueta
         label: Etiqueta

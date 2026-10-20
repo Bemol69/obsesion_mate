@@ -11,5 +11,10 @@
   "etiqueta": "",
   "agotado": false,
   "visible": true,
-  "orden": 50
+  "orden": 50,
+  "grabado": "opcional",
+  "grabado_detalle": "Grabado en la virola, a cotizar",
+  "opciones_titulo": "",
+  "opciones": [],
+  "galeria": []
 }

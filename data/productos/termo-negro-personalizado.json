@@ -1,0 +1,21 @@
+{
+  "nombre": "Termo negro personalizado",
+  "precio": 15000,
+  "precio_mayor": null,
+  "minimo_mayor": null,
+  "foto": "/img/productos/termo-negro-personalizado.webp",
+  "galeria": [],
+  "descripcion": "Termo negro con manija y grabado a tu gusto: escudos, nombres, logos o frases.",
+  "incluye": [
+    "Grabado personalizado",
+    "Hasta 3 imágenes grabadas"
+  ],
+  "etiqueta": "Personalizable",
+  "agotado": false,
+  "visible": true,
+  "orden": 115,
+  "grabado": "incluido",
+  "grabado_detalle": "Hasta 3 imágenes",
+  "opciones_titulo": "",
+  "opciones": []
+}

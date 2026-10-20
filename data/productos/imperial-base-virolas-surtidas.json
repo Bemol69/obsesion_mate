@@ -1,0 +1,28 @@
+{
+  "nombre": "Imperial con base · Virolas surtidas",
+  "precio": 35000,
+  "precio_mayor": 30000,
+  "minimo_mayor": 5,
+  "foto": "/img/productos/imperial-base-virolas-surtidas.webp",
+  "galeria": [],
+  "descripcion": "Mate imperial forrado en cuero negro con base de patas. Elige tu virola: guarda griega, cincelada o labrada.",
+  "incluye": [
+    "Grabado personalizado (sin tope de imágenes)",
+    "Incluye bombilla",
+    "Base con patas"
+  ],
+  "etiqueta": "Precio por mayor",
+  "agotado": false,
+  "visible": true,
+  "orden": 32,
+  "grabado": "incluido",
+  "grabado_detalle": "Sin tope de imágenes",
+  "opciones_titulo": "Virola",
+  "opciones": [
+    "Guarda griega",
+    "Floral",
+    "Ornamental",
+    "Floral con medallón",
+    "Ladrillo"
+  ]
+}

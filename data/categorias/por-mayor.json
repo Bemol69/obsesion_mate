@@ -1,0 +1,10 @@
+{
+  "nombre": "Por mayor",
+  "orden": 15,
+  "visible": true,
+  "productos": [
+    "imperial-base-virolas-surtidas",
+    "imperial-base-interior-calabaza",
+    "termo-acero"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "nombre": "Bombilla de acero",
+  "precio": 3500,
+  "precio_mayor": null,
+  "minimo_mayor": null,
+  "foto": "/img/productos/bombilla-acero.webp",
+  "galeria": [],
+  "descripcion": "Bombilla de acero inoxidable, en versión cuchara o recta.",
+  "incluye": [
+    "Acero inoxidable"
+  ],
+  "etiqueta": "",
+  "agotado": false,
+  "visible": true,
+  "orden": 125,
+  "grabado": "",
+  "grabado_detalle": "",
+  "opciones_titulo": "Modelo",
+  "opciones": [
+    "Cuchara",
+    "Recta con anillo dorado"
+  ]
+}

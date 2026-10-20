@@ -11,5 +11,10 @@
   "etiqueta": "Personalizable",
   "agotado": false,
   "visible": true,
-  "orden": 90
+  "orden": 90,
+  "grabado": "incluido",
+  "grabado_detalle": "Sin tope de grabados",
+  "opciones_titulo": "",
+  "opciones": [],
+  "galeria": []
 }

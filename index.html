@@ -52,6 +52,9 @@
       <symbol id="i-quote" viewBox="0 0 24 24"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></symbol>
       <symbol id="i-flask" viewBox="0 0 24 24"><rect x="7" y="6" width="10" height="16" rx="2"/><path d="M9 6V3h6v3M7 10h10M17 12h2v5h-2"/></symbol>
       <symbol id="i-bag" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="12" rx="2"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/><path d="M12 13v4"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+      <symbol id="i-paperclip" viewBox="0 0 24 24"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></symbol>
       <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
     </defs>
   </svg>
@@ -64,6 +67,7 @@
       </a>
       <nav class="nav__links">
         <a href="#catalogo">Catálogo</a>
+        <a href="#por-mayor">Por mayor</a>
         <a href="#personaliza">Personaliza</a>
         <a href="#proceso">Cómo comprar</a>
         <a href="#contacto">Contacto</a>
@@ -77,7 +81,10 @@
             <svg class="ic ic--fill"><use href="#i-tiktok"/></svg>
           </a><!-- /SI:TIKTOK -->
         </div>
-        <button class="btn btn--primary btn--sm" data-order>Hacer pedido</button>
+        <button class="cart-btn" data-open-cart aria-label="Abrir carrito">
+          <svg class="ic"><use href="#i-bag"/></svg><span class="cart-btn__label">Carrito</span>
+          <span class="cart-btn__n" data-cart-count>0</span>
+        </button>
       </div>
     </div>
   </header>
@@ -92,13 +99,13 @@
           <p class="lead">%%HERO_BAJADA%%</p>
           <div class="hero__cta">
             <a href="#catalogo" class="btn btn--primary">Ver catálogo</a>
-            <button class="btn btn--ghost" data-order="personalizado">Pedir uno personalizado</button>
+            <button class="btn btn--ghost" data-quote>Pedir uno personalizado</button>
           </div>
           <!-- ADAPTAR: 3 beneficios cortos del negocio (sin emojis) -->
           <ul class="hero__perks">
             <li>Forrados en cuero</li>
             <li>Grabado personalizado</li>
-            <li>Precios por mayor</li>
+            <li><a href="#por-mayor">Por mayor desde 5 unidades</a></li>
           </ul>
         </div>
         <div class="hero__collage">
@@ -135,6 +142,24 @@
       </div>
     </section>
 
+    <!-- POR MAYOR · la lista se arma sola con los productos que tienen "Precio por mayor" en /admin -->
+    <section id="por-mayor" class="section section--dark">
+      <div class="container wholesale">
+        <div class="wholesale__text">
+          <p class="eyebrow">Ventas por mayor</p>
+          <h2>Precios especiales desde 5 unidades</h2>
+          <p>Vendemos por mayor a emprendedores, tiendas, empresas y eventos. Mates y termos con grabado personalizado incluido, ideales para regalos corporativos, equipos, matrimonios y aniversarios.</p>
+          <ul class="wholesale__perks">
+            <li>Grabado personalizado incluido</li>
+            <li>Puedes combinar modelos</li>
+            <li>Envíos a todo Chile</li>
+          </ul>
+          <button class="btn btn--gold" data-quote><svg class="ic"><use href="#i-users"/></svg> Cotizar por mayor</button>
+        </div>
+        <ul class="wholesale__list"><!-- SEO:MAYOR --></ul>
+      </div>
+    </section>
+
     <!-- PERSONALIZA -->
     <section id="personaliza" class="section section--lilac">
       <div class="container">
@@ -160,12 +185,12 @@
               <li><span class="tile tile--sm"><svg class="ic"><use href="#i-mate"/></svg></span><div><strong>Mate de madera</strong><small>Sin tope de grabados</small></div></li>
               <li><span class="tile tile--sm"><svg class="ic"><use href="#i-bag"/></svg></span><div><strong>Matero de cuero</strong><small>Hasta 2 grabados</small></div></li>
               <li><span class="tile tile--sm"><svg class="ic"><use href="#i-flask"/></svg></span><div><strong>Termo de acero</strong><small>Hasta 3 imágenes</small></div></li>
-              <li><span class="tile tile--sm"><svg class="ic"><use href="#i-users"/></svg></span><div><strong>Pedidos por mayor</strong><small>Termos a $10.000 c/u desde 5 unidades</small></div></li>
+              <li><span class="tile tile--sm"><svg class="ic"><use href="#i-users"/></svg></span><div><strong>Pedidos por mayor</strong><small>Precios especiales desde 5 unidades · <a href="#por-mayor">ver precios</a></small></div></li>
             </ul>
           </div>
         </div>
         <div class="center">
-          <button class="btn btn--primary" data-order="personalizado"><svg class="ic"><use href="#i-sparkles"/></svg> Cotizar mi grabado</button>
+          <button class="btn btn--primary" data-quote><svg class="ic"><use href="#i-sparkles"/></svg> Cotizar mi grabado</button>
         </div>
       </div>
     </section>
@@ -181,12 +206,12 @@
           <div class="step">
             <span class="step__n">1</span>
             <h3>Elige tu producto</h3>
-            <p>Escoge del catálogo y envíanos el pedido por WhatsApp, o escríbenos por interno en Instagram.</p>
+            <p>Agrega al carrito lo que te guste, elige el modelo y envíanos el pedido por WhatsApp.</p>
           </div>
           <div class="step">
             <span class="step__n">2</span>
             <h3>Cuéntanos tu grabado</h3>
-            <p>Mándanos el texto, logo o imagen que quieres. Te confirmamos el diseño antes de grabar.</p>
+            <p>Activa el grabado en el producto y escribe tu texto. Si es un logo o imagen, lo adjuntas por WhatsApp; te confirmamos el diseño antes de grabar.</p>
           </div>
           <div class="step">
             <span class="step__n">3</span>
@@ -317,87 +342,165 @@
     </div>
   </footer>
 
-  <!-- MODAL DE PEDIDO -->
-  <div class="modal" id="orderModal" aria-hidden="true">
-    <div class="modal__backdrop" data-close></div>
-    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <button class="modal__close" data-close aria-label="Cerrar">×</button>
-      <h2 id="modalTitle">Tu pedido</h2>
+  <!-- FICHA DE PRODUCTO: opciones, grabado y cantidad antes de agregar al carrito -->
+  <div class="sheet" id="sheet" aria-hidden="true">
+    <div class="sheet__backdrop" data-close-sheet></div>
+    <div class="sheet__panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <button type="button" class="x-btn sheet__close" data-close-sheet aria-label="Cerrar">×</button>
+      <div class="sheet__media">
+        <button type="button" class="sheet__main" id="sheetZoom" aria-label="Ver foto en grande"><img id="sheetImg" src="" alt=""></button>
+        <div class="sheet__thumbs" id="sheetThumbs"></div>
+      </div>
+      <form class="sheet__body" id="sheetForm" novalidate>
+        <p class="card__cat" id="sheetCat"></p>
+        <h2 id="sheetTitle"></h2>
+        <div class="sheet__price" id="sheetPrice"></div>
+        <p class="sheet__desc" id="sheetDesc"></p>
+        <ul class="card__list sheet__list" id="sheetList"></ul>
 
-      <!-- ADAPTAR: campos del pedido según el rubro (en app.js: EXTRAS, ENTREGAS, LEAD_DAYS y buildMessage) -->
-      <form id="orderForm" novalidate>
-        <div class="row">
-          <label class="grow">Producto
-            <select name="ramo" id="fRamo"></select>
+        <fieldset class="opts" id="sheetOpts"></fieldset>
+
+        <fieldset class="engrave-box" id="sheetEngrave">
+          <label class="switch">
+            <input type="checkbox" id="sGrabar">
+            <span class="switch__ui" aria-hidden="true"></span>
+            <span class="switch__text"><strong>Grabado personalizado</strong><small id="sGrabadoInfo"></small></span>
           </label>
-          <label>Cantidad
-            <input id="fCantidad" type="number" min="1" max="500" step="1" value="1" inputmode="numeric">
-          </label>
-        </div>
-
-        <label>Color o modelo
-          <input id="fColores" type="text" placeholder="Opcional · ej: cuero negro, virola dorada">
-        </label>
-
-        <fieldset>
-          <legend>Agregar al pedido <span class="opt">(se cotizan aparte, sujeto a stock)</span></legend>
-          <div class="checks" id="fExtras"></div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Tipo de entrega</legend>
-          <div class="radios" id="fEntrega">
-            <label class="radio"><input type="radio" name="entrega" value="retiro" checked><span>Retiro en %%CIUDAD%%</span></label>
-            <label class="radio"><input type="radio" name="entrega" value="domicilio"><span>Despacho a domicilio</span></label>
-            <label class="radio"><input type="radio" name="entrega" value="region"><span>Envío a región</span></label>
+          <div class="engrave-box__reveal" id="sGrabadoBody">
+            <div class="engrave-box__inner">
+              <p class="engrave-box__q">¿Qué quieres grabar? <span class="opt">Puedes elegir varias</span></p>
+              <div class="checks checks--icons" id="sTipos"></div>
+              <label id="sTextoWrap">Texto a grabar
+                <textarea id="sTexto" rows="2" maxlength="160" placeholder="Ej: Juan Pérez · 12/10/2026 · “Siempre juntos”"></textarea>
+              </label>
+              <p class="engrave-box__file" id="sArchivo" hidden><svg class="ic"><use href="#i-paperclip"/></svg><span>Al enviar el pedido por WhatsApp, adjunta tu logo o imagen. Te mostramos el diseño antes de grabar.</span></p>
+            </div>
           </div>
         </fieldset>
 
-        <div class="row" data-delivery>
-          <label>Comuna / Ciudad
+        <label class="sheet__note">Nota para este producto <span class="opt">(opcional)</span>
+          <input id="sNota" type="text" maxlength="120" placeholder="Ej: color del cuero, es para regalo">
+        </label>
+
+        <div class="mayor-meter" id="sMayor" hidden></div>
+
+        <p class="form__error" id="sheetError" hidden></p>
+
+        <div class="sheet__buy">
+          <div class="qty">
+            <button type="button" data-qty="-1" aria-label="Quitar uno">−</button>
+            <input id="sQty" type="number" min="1" max="500" value="1" inputmode="numeric" aria-label="Cantidad">
+            <button type="button" data-qty="1" aria-label="Agregar uno">+</button>
+          </div>
+          <button type="submit" class="btn btn--primary sheet__add"><svg class="ic"><use href="#i-bag"/></svg> <span id="sAddLabel">Agregar</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CARRITO: paso 1 productos, paso 2 entrega y envío por WhatsApp -->
+  <aside class="drawer" id="cart" aria-hidden="true">
+    <div class="drawer__backdrop" data-close-cart></div>
+    <div class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+      <header class="drawer__head">
+        <button type="button" class="x-btn drawer__back" id="cartBack" aria-label="Volver al carrito" hidden>‹</button>
+        <h2 id="cartTitle">Tu carrito</h2>
+        <button type="button" class="x-btn" data-close-cart aria-label="Cerrar">×</button>
+      </header>
+      <ol class="drawer__steps">
+        <li class="is-active" data-step-dot="1"><span>1</span> Productos</li>
+        <li data-step-dot="2"><span>2</span> Entrega y datos</li>
+      </ol>
+
+      <div class="drawer__body">
+        <section id="cartStep1">
+          <ul class="lines" id="cartLines"></ul>
+          <div class="cart-empty" id="cartEmpty">
+            <span class="tile"><svg class="ic"><use href="#i-bag"/></svg></span>
+            <strong>Tu carrito está vacío</strong>
+            <p>Agrega mates, termos o bombillas desde el catálogo, o pide una cotización.</p>
+            <a href="#catalogo" class="btn btn--ghost btn--sm" data-close-cart>Ver catálogo</a>
+          </div>
+        </section>
+
+        <!-- ADAPTAR: campos del pedido según el rubro (en app.js: ENTREGAS, LEAD_DAYS y buildMessage) -->
+        <form id="checkoutForm" novalidate hidden>
+          <fieldset>
+            <legend>Tipo de entrega</legend>
+            <div class="radios" id="fEntrega">
+              <label class="radio"><input type="radio" name="entrega" value="retiro" checked><span>Retiro en %%CIUDAD%%</span></label>
+              <label class="radio"><input type="radio" name="entrega" value="domicilio"><span>Despacho a domicilio</span></label>
+              <label class="radio"><input type="radio" name="entrega" value="region"><span>Envío a región</span></label>
+            </div>
+          </fieldset>
+
+          <label data-delivery>Comuna / Ciudad
             <input id="fComuna" type="text" placeholder="Ej: Machalí">
           </label>
-        </div>
-        <label data-delivery>Dirección
-          <input id="fDireccion" type="text" placeholder="Calle, número, depto">
-        </label>
-
-        <label>Grabado
-          <input id="fDedicatoria" type="text" maxlength="160" placeholder="Opcional · nombre, frase, fecha (logos e imágenes, por WhatsApp)">
-        </label>
-
-        <label>¿Para cuándo lo necesitas?
-          <input id="fFecha" type="date">
-        </label>
-
-        <div class="row">
-          <label class="grow">Tu nombre
-            <input id="fCliente" type="text" placeholder="Ej: Camila">
+          <label data-delivery>Dirección
+            <input id="fDireccion" type="text" placeholder="Calle, número, depto">
           </label>
-          <label>Pago
-            <select id="fPago">
-              <option>Transferencia</option>
-              <option>Efectivo</option>
-            </select>
+
+          <div class="row">
+            <label class="grow">Tu nombre
+              <input id="fCliente" type="text" placeholder="Ej: Camila">
+            </label>
+            <label>Pago
+              <select id="fPago">
+                <option>Transferencia</option>
+                <option>Efectivo</option>
+              </select>
+            </label>
+          </div>
+
+          <label>¿Para cuándo lo necesitas? <span class="opt">(opcional)</span>
+            <input id="fFecha" type="date">
           </label>
-        </div>
 
-        <p class="hint" id="fHint"></p>
+          <label>Comentarios o pedido especial <span class="opt">(opcional)</span>
+            <textarea id="fComentario" rows="3" maxlength="400" placeholder="Ej: necesito 20 mates grabados para un evento"></textarea>
+          </label>
 
-        <div class="preview">
-          <p class="preview__label">Así llegará tu mensaje</p>
-          <div id="msgPreview"></div>
-        </div>
+          <p class="hint" id="fHint"></p>
 
-        <div class="total">
-          <span>Total</span>
-          <strong id="fTotal">$0</strong>
-        </div>
+          <details class="preview">
+            <summary class="preview__label">Ver cómo llegará tu mensaje</summary>
+            <div id="msgPreview"></div>
+          </details>
 
-        <p class="form__error" id="formError" hidden></p>
+          <p class="form__error" id="formError" hidden></p>
+        </form>
+      </div>
 
-        <button type="submit" class="btn btn--whatsapp btn--block">Enviar pedido por WhatsApp</button>
-      </form>
+      <footer class="drawer__foot">
+        <dl class="sum" id="cartSum"></dl>
+        <button type="button" class="btn btn--primary btn--block" id="cartNext">Continuar</button>
+        <button type="submit" form="checkoutForm" class="btn btn--whatsapp btn--block" id="cartSend" hidden><svg class="ic"><use href="#i-chat"/></svg> Enviar pedido por WhatsApp</button>
+      </footer>
+    </div>
+  </aside>
+
+  <!-- Barra flotante del carrito y aviso de "agregado" -->
+  <button type="button" class="cartbar" id="cartBar" data-open-cart hidden>
+    <svg class="ic"><use href="#i-bag"/></svg>
+    <span>Ver carrito (<b data-cart-count>0</b>)</span>
+    <strong id="cartBarTotal">$0</strong>
+  </button>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- VISOR DE FOTOS (al tocar la foto grande de la ficha) -->
+  <div class="viewer" id="viewer" aria-hidden="true">
+    <div class="viewer__backdrop" data-close-viewer></div>
+    <div class="viewer__panel" role="dialog" aria-modal="true" aria-labelledby="viewerTitle">
+      <button type="button" class="viewer__close" data-close-viewer aria-label="Cerrar">×</button>
+      <div class="viewer__stage">
+        <button type="button" class="viewer__nav viewer__nav--prev" data-step="-1" aria-label="Foto anterior">‹</button>
+        <img id="viewerImg" src="" alt="">
+        <button type="button" class="viewer__nav viewer__nav--next" data-step="1" aria-label="Foto siguiente">›</button>
+      </div>
+      <div class="viewer__foot">
+        <div><strong id="viewerTitle"></strong> <span id="viewerCount"></span></div>
+      </div>
     </div>
   </div>
 
