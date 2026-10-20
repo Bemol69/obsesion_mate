@@ -25,12 +25,13 @@ const SORTS = {
   'precio-desc': (a, b) => b.price - a.price,
 };
 
-// Qué se puede grabar. Los de "archivo" (logo, imagen) se adjuntan por WhatsApp al enviar el pedido.
+// Qué se puede grabar. Cada producto define cuáles permite y cuántos como máximo (en /admin).
+// Los de texto piden su propio campo; los de "archivo" (logo, imagen) se adjuntan por WhatsApp.
 const GRABADOS = [
-  { id: 'nombre', label: 'Nombre', icon: 'i-type' },
-  { id: 'iniciales', label: 'Iniciales', icon: 'i-hash' },
-  { id: 'fecha', label: 'Fecha', icon: 'i-calendar' },
-  { id: 'frase', label: 'Frase', icon: 'i-quote' },
+  { id: 'nombre', label: 'Nombre', icon: 'i-type', ej: 'Ej: Camila', max: 40, el: 'el nombre' },
+  { id: 'iniciales', label: 'Iniciales', icon: 'i-hash', ej: 'Ej: C & M', max: 12, el: 'las iniciales' },
+  { id: 'fecha', label: 'Fecha', icon: 'i-calendar', ej: 'Ej: 14/02/2026', max: 30, el: 'la fecha' },
+  { id: 'frase', label: 'Frase', icon: 'i-quote', ej: 'Ej: Siempre juntos', max: 80, el: 'la frase' },
   { id: 'logo', label: 'Logo o escudo', icon: 'i-shield', archivo: true },
   { id: 'imagen', label: 'Imagen o dibujo', icon: 'i-image', archivo: true },
 ];
@@ -140,7 +141,7 @@ filters.addEventListener('click', (e) => {
 $('#sort').addEventListener('change', () => renderProducts());
 
 // ===== CARRITO (se guarda en este navegador) =====
-// Cada línea: { key, id, qty, opcion, nota, grabado: { tipos: [], texto } | null }
+// Cada línea: { key, id, qty, opcion, nota, grabado: { tipos: [], textos: { nombre: '…' } } | null }
 let cart = [];
 try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch (e) {}
 if (!Array.isArray(cart)) cart = [];
@@ -165,9 +166,12 @@ function totals() {
   return { total, ahorro: normal - total, count, cotizar };
 }
 
-const tipoLabel = (id) => (GRABADOS.find((g) => g.id === id) || {}).label || id;
-const grabadoResumen = (g) =>
-  g.tipos.map(tipoLabel).join(', ') + (g.texto ? ` · “${g.texto}”` : '');
+const tipoDe = (id) => GRABADOS.find((g) => g.id === id) || { id, label: id };
+const esArchivo = (id) => !!tipoDe(id).archivo;
+// "Nombre: “Camila” · Logo o escudo (por WhatsApp)"
+const grabadoPartes = (g) => g.tipos.map((t) =>
+  esArchivo(t) ? `${tipoDe(t).label} (por WhatsApp)` : `${tipoDe(t).label}: “${(g.textos || {})[t] || ''}”`);
+const grabadoResumen = (g) => grabadoPartes(g).join(' · ');
 
 function renderCart() {
   const t = totals();
@@ -241,9 +245,7 @@ const sheet = $('#sheet');
 const sheetForm = $('#sheetForm');
 let current = null;
 
-$('#sTipos').innerHTML = GRABADOS
-  .map((g) => `<label><input type="checkbox" value="${g.id}"><span>${icon(g.icon)}${esc(g.label)}</span></label>`)
-  .join('');
+let campos = {}; // lo escrito en cada campo de grabado, para no perderlo al marcar/desmarcar
 
 function setPhoto(i) {
   $('#sheetImg').src = current.gallery[i];
@@ -285,6 +287,12 @@ function openSheet(id) {
   $('#sGrabar').checked = p.grabado === 'incluido';
   $('#sGrabadoInfo').textContent = [p.grabado === 'incluido' ? 'Incluido en el precio' : 'Opcional · se cotiza aparte', p.grabadoDetalle]
     .filter(Boolean).join(' · ');
+  // Solo los tipos que permite este producto (ej: un termo no lleva fecha ni iniciales)
+  $('#sTipos').innerHTML = GRABADOS.filter((g) => !p.grabadoTipos.length || p.grabadoTipos.includes(g.id))
+    .map((g) => `<label><input type="checkbox" value="${g.id}"><span>${icon(g.icon)}${esc(g.label)}</span></label>`)
+    .join('');
+  campos = {};
+  renderCampos();
   syncSheet();
   setOpen(sheet, true);
 }
@@ -293,16 +301,37 @@ function sheetTipos() {
   return $$('#sTipos input:checked').map((i) => i.value);
 }
 
+// Un campo por cada cosa de texto elegida (Nombre, Fecha, Frase…), en el orden de los chips
+function renderCampos() {
+  $$('#sCampos input').forEach((i) => { campos[i.dataset.campo] = i.value; });
+  $('#sCampos').innerHTML = sheetTipos().filter((t) => !esArchivo(t)).map((t) => {
+    const g = tipoDe(t);
+    return `<label>${icon(g.icon)} ${esc(g.label)}
+      <input type="text" data-campo="${g.id}" maxlength="${g.max}" placeholder="${esc(g.ej)}" value="${esc(campos[g.id] || '')}">
+    </label>`;
+  }).join('');
+}
+
+// Respeta el máximo del producto: al llegar al tope se bloquean los demás chips
+function syncTipos() {
+  const max = current.grabadoMax;
+  const n = sheetTipos().length;
+  $$('#sTipos input').forEach((i) => {
+    i.disabled = !!max && n >= max && !i.checked;
+    i.closest('label').classList.toggle('is-locked', i.disabled);
+  });
+  $('#sTiposHint').textContent = max
+    ? `Elige hasta ${max} · ${n} de ${max}`
+    : 'Puedes elegir varias';
+}
+
 function syncSheet() {
   if (!current) return;
   const grabar = !!current.grabado && $('#sGrabar').checked;
   $('#sGrabadoBody').classList.toggle('is-open', grabar);
   $('#sheetEngrave').classList.toggle('is-on', grabar);
-  const tipos = sheetTipos();
-  const conArchivo = tipos.some((t) => (GRABADOS.find((g) => g.id === t) || {}).archivo);
-  const conTexto = tipos.some((t) => !(GRABADOS.find((g) => g.id === t) || {}).archivo);
-  $('#sTextoWrap').hidden = tipos.length > 0 && !conTexto;
-  $('#sArchivo').hidden = !conArchivo;
+  syncTipos();
+  $('#sArchivo').hidden = !sheetTipos().some(esArchivo);
 
   const qty = clampQty($('#sQty').value);
   const total = qty + qtyOf(current.id);
@@ -323,8 +352,11 @@ function syncSheet() {
   }
 }
 
-sheetForm.addEventListener('input', syncSheet);
-sheetForm.addEventListener('change', syncSheet);
+sheetForm.addEventListener('input', () => { $('#sheetError').hidden = true; syncSheet(); });
+sheetForm.addEventListener('change', (e) => {
+  if (e.target.closest('#sTipos')) renderCampos();
+  syncSheet();
+});
 $('#sheetThumbs').addEventListener('click', (e) => {
   const b = e.target.closest('[data-thumb]');
   if (b) setPhoto(Number(b.dataset.thumb));
@@ -344,11 +376,16 @@ sheetForm.addEventListener('submit', (e) => {
   let grabado = null;
   if (p.grabado && $('#sGrabar').checked) {
     const tipos = sheetTipos();
-    const texto = $('#sTexto').value.trim();
-    const conTexto = tipos.some((t) => !(GRABADOS.find((g) => g.id === t) || {}).archivo);
     if (!tipos.length) { err.textContent = 'Elige qué quieres grabar (o desactiva el grabado).'; err.hidden = false; return; }
-    if (conTexto && !texto) { err.textContent = 'Escribe el texto que quieres grabar.'; err.hidden = false; $('#sTexto').focus(); return; }
-    grabado = { tipos, texto: conTexto ? texto : '' };
+    const textos = {};
+    const vacio = $$('#sCampos input').find((i) => !(textos[i.dataset.campo] = i.value.trim()));
+    if (vacio) {
+      err.textContent = `Escribe ${tipoDe(vacio.dataset.campo).el} que quieres grabar.`;
+      err.hidden = false;
+      vacio.focus();
+      return;
+    }
+    grabado = { tipos, textos };
   }
   const opcion = (sheetForm.querySelector('input[name="opcion"]:checked') || {}).value || '';
   const nota = $('#sNota').value.trim();
@@ -423,14 +460,19 @@ function getOrder() {
 // *texto* = negrita y _texto_ = cursiva en WhatsApp
 function buildMessage(o) {
   const t = totals();
-  const archivos = cart.some((l) => l.grabado && l.grabado.tipos.some((x) => (GRABADOS.find((g) => g.id === x) || {}).archivo));
+  const archivos = cart.some((l) => l.grabado && l.grabado.tipos.some(esArchivo));
   const L = [`🧉✨ *${cart.length ? 'PEDIDO' : 'COTIZACIÓN'} #${orderNumber}* ✨🧉`, '━━━━━━━━━━━━━━━'];
   cart.forEach((l, i) => {
     const p = findProduct(l.id);
     const unit = unitPrice(p, qtyOf(l.id));
     L.push(`*${i + 1}. ${p.name}* × ${l.qty}`);
     if (l.opcion) L.push(`   ▫️ ${p.opcionesTitulo || 'Opción'}: ${l.opcion}`);
-    if (l.grabado) L.push(`   ✍️ Grabado: ${l.grabado.tipos.map(tipoLabel).join(', ')}${l.grabado.texto ? ` — _"${l.grabado.texto}"_` : ''}${p.grabado === 'opcional' ? ' (a cotizar)' : ''}`);
+    if (l.grabado) {
+      L.push(`   ✍️ Grabado${p.grabado === 'opcional' ? ' (a cotizar)' : ''}:`);
+      l.grabado.tipos.forEach((t) => L.push(esArchivo(t)
+        ? `      • ${tipoDe(t).label}: _te lo envío por aquí_`
+        : `      • ${tipoDe(t).label}: _"${(l.grabado.textos || {})[t] || ''}"_`));
+    }
     if (l.nota) L.push(`   📝 ${l.nota}`);
     L.push(`   💲 ${clp(unit)} c/u${unit !== p.price ? ' (por mayor)' : ''} = ${clp(unit * l.qty)}`);
   });
@@ -610,6 +652,8 @@ async function loadProducts() {
       mayor: p.precio_mayor && p.minimo_mayor ? { precio: Number(p.precio_mayor), desde: Number(p.minimo_mayor) } : null,
       grabado: p.grabado || '',
       grabadoDetalle: p.grabado_detalle || '',
+      grabadoTipos: Array.isArray(p.grabado_tipos) ? p.grabado_tipos : [],
+      grabadoMax: Number(p.grabado_max) || 0,
       opcionesTitulo: p.opciones_titulo || '',
       opciones: Array.isArray(p.opciones) ? p.opciones : [],
       agotado: !!p.agotado,

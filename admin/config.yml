@@ -183,6 +183,28 @@ collections:
         required: false
         hint: "Opcional. Ej: Sin tope de imágenes · Hasta 2 grabados · Hasta 3 imágenes"
 
+      - name: grabado_tipos
+        label: Qué se puede grabar
+        widget: select
+        multiple: true
+        required: false
+        options:
+          - { label: "Nombre", value: "nombre" }
+          - { label: "Iniciales", value: "iniciales" }
+          - { label: "Fecha", value: "fecha" }
+          - { label: "Frase", value: "frase" }
+          - { label: "Logo o escudo", value: "logo" }
+          - { label: "Imagen o dibujo", value: "imagen" }
+        hint: "Déjalo vacío para permitir todo. Ej: en un termo, Nombre, Frase, Logo e Imagen."
+
+      - name: grabado_max
+        label: Máximo de elementos a grabar
+        widget: number
+        value_type: int
+        min: 1
+        required: false
+        hint: "Cuántas cosas puede elegir el cliente. Ej: 3 en termos, 2 en materos. Vacío = sin tope."
+
       - name: opciones_titulo
         label: Título de las opciones
         widget: string

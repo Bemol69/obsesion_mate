@@ -14,5 +14,7 @@
   "grabado_detalle": "",
   "opciones_titulo": "",
   "opciones": [],
-  "galeria": []
+  "galeria": [],
+  "grabado_tipos": [],
+  "grabado_max": null
 }

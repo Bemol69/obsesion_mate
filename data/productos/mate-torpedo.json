@@ -18,5 +18,12 @@
   "grabado_detalle": "Grabado en la virola, a cotizar",
   "opciones_titulo": "",
   "opciones": [],
-  "galeria": []
+  "galeria": [],
+  "grabado_tipos": [
+    "nombre",
+    "iniciales",
+    "fecha",
+    "frase"
+  ],
+  "grabado_max": null
 }

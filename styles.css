@@ -520,3 +520,12 @@ body:has(.sheet.is-open, .drawer.is-open, .viewer.is-open) .cartbar { display: n
   .cart-btn__label { display: none; }
   .cart-btn { padding: .6rem .8rem; }
 }
+
+/* Campos de grabado: uno por cada cosa elegida + chips bloqueados al llegar al máximo */
+.engrave-box__fields { display: flex; flex-direction: column; gap: .7rem; }
+.engrave-box__fields:empty { display: none; }
+.engrave-box__fields label { display: flex; flex-direction: column; gap: .35rem; }
+.engrave-box__fields label > .ic { display: none; }
+.engrave-box__fields label { animation: pop .2s ease-out; }
+.checks label.is-locked { cursor: not-allowed; }
+.checks label.is-locked span { opacity: .4; }

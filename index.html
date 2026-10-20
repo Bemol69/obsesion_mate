@@ -368,18 +368,16 @@
           </label>
           <div class="engrave-box__reveal" id="sGrabadoBody">
             <div class="engrave-box__inner">
-              <p class="engrave-box__q">¿Qué quieres grabar? <span class="opt">Puedes elegir varias</span></p>
+              <p class="engrave-box__q">¿Qué quieres grabar? <span class="opt" id="sTiposHint"></span></p>
               <div class="checks checks--icons" id="sTipos"></div>
-              <label id="sTextoWrap">Texto a grabar
-                <textarea id="sTexto" rows="2" maxlength="160" placeholder="Ej: Juan Pérez · 12/10/2026 · “Siempre juntos”"></textarea>
-              </label>
+              <div class="engrave-box__fields" id="sCampos"></div>
               <p class="engrave-box__file" id="sArchivo" hidden><svg class="ic"><use href="#i-paperclip"/></svg><span>Al enviar el pedido por WhatsApp, adjunta tu logo o imagen. Te mostramos el diseño antes de grabar.</span></p>
             </div>
           </div>
         </fieldset>
 
         <label class="sheet__note">Nota para este producto <span class="opt">(opcional)</span>
-          <input id="sNota" type="text" maxlength="120" placeholder="Ej: color del cuero, es para regalo">
+          <input id="sNota" type="text" maxlength="120" placeholder="Ej: es para regalo, lo necesito el viernes">
         </label>
 
         <div class="mayor-meter" id="sMayor" hidden></div>

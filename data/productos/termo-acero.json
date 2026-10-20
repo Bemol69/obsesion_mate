@@ -19,5 +19,12 @@
   "grabado": "incluido",
   "grabado_detalle": "Hasta 3 imágenes",
   "opciones_titulo": "",
-  "opciones": []
+  "opciones": [],
+  "grabado_tipos": [
+    "nombre",
+    "frase",
+    "logo",
+    "imagen"
+  ],
+  "grabado_max": 3
 }

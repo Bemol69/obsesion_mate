@@ -106,6 +106,9 @@ const productos = readFolder('productos')
     // Grabado: "incluido" | "opcional" | "" (no se graba)
     grabado: ['incluido', 'opcional'].includes(p.grabado) ? p.grabado : '',
     grabado_detalle: typeof p.grabado_detalle === 'string' ? p.grabado_detalle.trim() : '',
+    // Qué se puede grabar ([] = todo) y cuántos elementos como máximo (0 = sin tope)
+    grabado_tipos: Array.isArray(p.grabado_tipos) ? p.grabado_tipos.filter((t) => typeof t === 'string') : [],
+    grabado_max: Math.max(0, Math.round(num(p.grabado_max, 0))),
     opciones_titulo: typeof p.opciones_titulo === 'string' ? p.opciones_titulo.trim() : '',
     opciones: Array.isArray(p.opciones) ? p.opciones.map((o) => String(o).trim()).filter(Boolean) : [],
     // Precio por mayor opcional: se aplica desde "minimo_mayor" unidades

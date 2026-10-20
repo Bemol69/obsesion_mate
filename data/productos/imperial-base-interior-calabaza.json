@@ -18,5 +18,7 @@
   "grabado": "incluido",
   "grabado_detalle": "Sin tope de imágenes",
   "opciones_titulo": "",
-  "opciones": []
+  "opciones": [],
+  "grabado_tipos": [],
+  "grabado_max": null
 }

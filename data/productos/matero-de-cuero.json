@@ -17,5 +17,13 @@
   "grabado": "incluido",
   "grabado_detalle": "Hasta 2 grabados",
   "opciones_titulo": "",
-  "opciones": []
+  "opciones": [],
+  "grabado_tipos": [
+    "nombre",
+    "iniciales",
+    "frase",
+    "logo",
+    "imagen"
+  ],
+  "grabado_max": 2
 }
