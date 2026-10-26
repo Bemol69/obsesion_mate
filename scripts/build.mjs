@@ -16,10 +16,14 @@ const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'));
 const config = readJson(join(ROOT, 'tienda.config.json'));
 const ajustes = existsSync(join(DATA, 'ajustes.json')) ? readJson(join(DATA, 'ajustes.json')) : {};
 
-// En Vercel se usa el dominio de producción (se actualiza solo al conectar un dominio propio)
-const SITE = (process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : config.site_url || 'http://localhost:5600').replace(/\/$/, '');
+// Dirección oficial del sitio (canonical, sitemap, Open Graph).
+// Manda site_url de tienda.config.json cuando es un dominio propio: Vercel puede seguir
+// entregando el *.vercel.app en VERCEL_PROJECT_PRODUCTION_URL aunque ya haya dominio.
+const SITE_CONFIG = String(config.site_url || '').trim();
+const SITE_VERCEL = process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '';
+const SITE = (SITE_CONFIG && !/\.vercel\.app\/?$/.test(SITE_CONFIG)
+  ? SITE_CONFIG
+  : SITE_VERCEL || SITE_CONFIG || 'http://localhost:5600').replace(/\/$/, '');
 
 // ---------- 1. Datos de la tienda ----------
 const str = (v) => (v === undefined || v === null ? '' : String(v).trim());

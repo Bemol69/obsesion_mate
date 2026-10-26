@@ -6,11 +6,34 @@
   "headers": [
     {
       "source": "/admin(.*)",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
     },
     {
       "source": "/data/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/((?!admin).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "obsesion-mate.vercel.app"
+        }
+      ],
+      "destination": "https://www.obsesionmate.cl/$1",
+      "permanent": true
     }
   ]
 }
