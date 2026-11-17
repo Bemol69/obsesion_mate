@@ -1,0 +1,20 @@
+{
+  "nombre": "Torpedo cuero crudo",
+  "precio": 35000,
+  "precio_mayor": null,
+  "minimo_mayor": null,
+  "foto": "/img/productos/2307A7AA-E3B0-4E43-A9B5-23DDB3BF1028.webp",
+  "galeria": [],
+  "descripcion": "Torpedo cuero crudo , interior calabaza",
+  "incluye": [],
+  "grabado": "",
+  "grabado_detalle": "",
+  "grabado_tipos": [],
+  "grabado_max": null,
+  "opciones_titulo": "",
+  "opciones": [],
+  "etiqueta": "",
+  "orden": 1000,
+  "agotado": false,
+  "visible": true
+}
