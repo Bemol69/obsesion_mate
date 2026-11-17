@@ -1,0 +1,20 @@
+{
+  "nombre": "Mate imperial cuero crudo",
+  "precio": 45000,
+  "precio_mayor": null,
+  "minimo_mayor": null,
+  "foto": "/img/productos/6AD96611-846C-4FAE-B9F5-91E83B90D532.webp",
+  "galeria": [],
+  "descripcion": "Mate imperial cuero crudo , incluye personalizado",
+  "incluye": [],
+  "grabado": "incluido",
+  "grabado_detalle": "",
+  "grabado_tipos": [],
+  "grabado_max": null,
+  "opciones_titulo": "",
+  "opciones": [],
+  "etiqueta": "",
+  "orden": 1000,
+  "agotado": false,
+  "visible": true
+}
