@@ -1,9 +1,8 @@
 {
   "nombre": "Premium",
-  "orden": 40,
-  "visible": true,
   "productos": [
-    "imperial-calabaza-premium",
     "animal-print-interior-calabaza"
-  ]
+  ],
+  "orden": 40,
+  "visible": true
 }
