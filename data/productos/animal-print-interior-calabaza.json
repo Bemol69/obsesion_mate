@@ -1,27 +1,29 @@
 {
   "nombre": "Animal print interior calabaza",
   "precio": 40000,
+  "precio_mayor": null,
+  "minimo_mayor": null,
   "foto": "/img/productos/animal-print-interior-calabaza.jpg",
+  "galeria": [],
   "descripcion": "Forrado en cuero con pelo animal print y virola con guarda pampa.",
   "incluye": [
     "Interior de calabaza",
     "Cuero con pelo animal print",
     "Virola con guarda pampa"
   ],
-  "etiqueta": "",
-  "agotado": false,
-  "visible": true,
-  "orden": 80,
   "grabado": "opcional",
   "grabado_detalle": "Grabado en la virola, a cotizar",
-  "opciones_titulo": "",
-  "opciones": [],
-  "galeria": [],
   "grabado_tipos": [
     "nombre",
     "iniciales",
     "fecha",
     "frase"
   ],
-  "grabado_max": null
+  "grabado_max": null,
+  "opciones_titulo": "",
+  "opciones": [],
+  "etiqueta": "",
+  "orden": 80,
+  "agotado": true,
+  "visible": true
 }
