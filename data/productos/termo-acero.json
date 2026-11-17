@@ -4,25 +4,25 @@
   "precio_mayor": 10000,
   "minimo_mayor": 5,
   "foto": "/img/productos/termo-acero-afiche.webp",
+  "galeria": [],
   "descripcion": "Termo de acero inoxidable con manija, personalizable con nombres, logos o frases.",
   "incluye": [
     "Acero inoxidable",
     "Hasta 3 imágenes grabadas"
   ],
-  "etiqueta": "Precio por mayor",
-  "agotado": false,
-  "visible": true,
-  "orden": 110,
-  "galeria": [],
   "grabado": "incluido",
   "grabado_detalle": "Hasta 3 imágenes",
-  "opciones_titulo": "",
-  "opciones": [],
   "grabado_tipos": [
     "nombre",
     "frase",
     "logo",
     "imagen"
   ],
-  "grabado_max": 3
+  "grabado_max": 3,
+  "opciones_titulo": "",
+  "opciones": [],
+  "etiqueta": "Precio por mayor",
+  "orden": 110,
+  "agotado": true,
+  "visible": true
 }
