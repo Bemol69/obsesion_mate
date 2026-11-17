@@ -1,0 +1,20 @@
+{
+  "nombre": "Imperial cuero crocco",
+  "precio": 45000,
+  "precio_mayor": null,
+  "minimo_mayor": null,
+  "foto": "/img/productos/A668E4D4-6A61-42EF-83C2-6FA81FB37DD1.webp",
+  "galeria": [],
+  "descripcion": "Imperial cuero crocco , interior calabaza , con virola de alpaca.",
+  "incluye": [],
+  "grabado": "incluido",
+  "grabado_detalle": "",
+  "grabado_tipos": [],
+  "grabado_max": null,
+  "opciones_titulo": "",
+  "opciones": [],
+  "etiqueta": "",
+  "orden": 1000,
+  "agotado": false,
+  "visible": true
+}
